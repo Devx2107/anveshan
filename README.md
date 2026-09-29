@@ -69,7 +69,7 @@ Frontend (Dashboard Map & Export)
 ## 7. Repository Structure
 
 ```text
-YOUR-SIH-PROJECT/
+anveshan/
 ├── README.md
 ├── SUBMISSION_GUIDE.md
 ├── submission/
