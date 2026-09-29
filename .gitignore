@@ -41,8 +41,15 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
+.venv-*/
 venv/
 .env
+
+# Local tools and generated model artifacts
+/.tools/
+/runs/
+/weights/
+/yolov8n.pt
 
 # Jupyter
 .ipynb_checkpoints/
