@@ -22,6 +22,43 @@ working after a tunnel restart until the frontend configuration is updated. For 
 stable URL, configure a persistent named Cloudflare Tunnel with a hostname you
 control; otherwise send the teammate the newly printed Quick Tunnel URL each time.
 
+## Render deployment
+
+The repository includes a Render Blueprint in `render.yaml` and a separate
+CPU-only dependency list in `requirements-render.txt`. The service uses the
+actual application module, `src.api.main:app`, and its `/health` readiness check.
+The Blueprint selects Render's paid Starter instance because a PyTorch + YOLO
+process and model need more memory than the Free instance's 512 MB; the Free
+instance is not a reliable deployment target for this API.
+
+Before creating the service, add the trained checkpoint to Git and push it. It is
+currently ignored by the repository, and the API exits on startup without it:
+
+```powershell
+git add -f models/weights/best.pt
+git add render.yaml requirements-render.txt docs/inference.md
+git commit -m "Configure Render inference service"
+git push
+```
+
+In Render, choose **New → Blueprint** and select this repository. Review the
+Starter instance and deploy the `anveshan-inference` service. Alternatively,
+create a Web Service manually with root directory `.`, build command
+`pip install -r requirements-render.txt`, start command
+`uvicorn src.api.main:app --host 0.0.0.0 --port $PORT`, and health check path
+`/health`. Python 3.11 is recommended. The `requirements-render.txt` file installs
+CPU PyTorch, TorchVision, and the API dependencies; it does not use the CUDA
+workstation environment or the broader development `requirements.txt`.
+
+After deployment, test `https://<your-render-service>.onrender.com/health` and
+then POST a preprocessed PNG/JPEG to `/detect`. The free web service sleeps after
+inactivity and may not have enough memory for this workload. Render's paid
+Starter service avoids the free service's sleep behavior, but verify actual
+startup memory and inference latency from the deployment logs. Set
+`ANVESHAN_INFERENCE_URL` in the Vercel project to the Render base URL only after
+the endpoint passes both checks; the Vercel route currently still uses demo or
+Roboflow behavior and is not yet wired to this service.
+
 ## Train and run locally
 
 ### Windows quick-tunnel launchers
