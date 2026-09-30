@@ -28,10 +28,14 @@ def create_app(model_loader=load_model):
     async def lifespan(app):
         path = Path(os.getenv("MODEL_PATH", str(ROOT / "models/weights/best.pt")))
         if not path.is_file():
-            raise RuntimeError(f"Missing trained weights: {path}. Train and copy best.pt first.")
+            raise RuntimeError(
+                f"Missing trained weights: {path}. Train and copy best.pt first."
+            )
         model = model_loader(path)
         if model.names != CLASSES:
-            raise RuntimeError(f"Model classes must be exactly {CLASSES}; got {model.names}")
+            raise RuntimeError(
+                f"Model classes must be exactly {CLASSES}; got {model.names}"
+            )
         app.state.model = model
         app.state.device = os.getenv("YOLO_DEVICE", "cpu")
         app.state.lock = Lock()
@@ -39,11 +43,17 @@ def create_app(model_loader=load_model):
         app.state.model = None
 
     app = FastAPI(title="Anveshan inference", lifespan=lifespan)
-    origins = [value.strip() for value in os.getenv("CORS_ORIGINS", "").split(",") if value.strip()]
+    origins = [
+        value.strip()
+        for value in os.getenv("CORS_ORIGINS", "").split(",")
+        if value.strip()
+    ]
     if origins:
         app.add_middleware(
-            CORSMiddleware, allow_origins=origins,
-            allow_methods=["POST", "GET"], allow_headers=["Content-Type"],
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_methods=["POST", "GET"],
+            allow_headers=["Content-Type"],
         )
 
     @app.get("/health")
@@ -73,17 +83,24 @@ def create_app(model_loader=load_model):
         # Ultralytics predictors hold mutable state; serialize access to this model.
         with app.state.lock:
             result = app.state.model.predict(
-                source=bgr, device=app.state.device, conf=0.25, iou=0.7,
-                imgsz=640, max_det=300, verbose=False,
+                source=bgr,
+                device=app.state.device,
+                conf=0.25,
+                iou=0.7,
+                imgsz=640,
+                max_det=300,
+                verbose=False,
             )[0]
             detections = []
             for box in result.boxes:
                 x1, y1, x2, y2 = box.xyxy[0].tolist()
-                detections.append({
-                    "class": CLASSES[int(box.cls[0])],
-                    "confidence": float(box.conf[0]),
-                    "bbox": [x1, y1, x2 - x1, y2 - y1],
-                })
+                detections.append(
+                    {
+                        "class": CLASSES[int(box.cls[0])],
+                        "confidence": float(box.conf[0]),
+                        "bbox": [x1, y1, x2 - x1, y2 - y1],
+                    }
+                )
         return {"detections": detections, "image": {"width": width, "height": height}}
 
     return app

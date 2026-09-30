@@ -1,4 +1,5 @@
 """Contract tests without downloading model weights or requiring a GPU."""
+
 from io import BytesIO
 import os
 from pathlib import Path
@@ -20,12 +21,19 @@ class ApiTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         path = Path(self.tmp.name) / "best.pt"
         path.touch()
-        env = patch.dict(os.environ, {"MODEL_PATH": str(path), "CORS_ORIGINS": "https://demo.vercel.app"})
+        env = patch.dict(
+            os.environ,
+            {"MODEL_PATH": str(path), "CORS_ORIGINS": "https://demo.vercel.app"},
+        )
         env.start()
         self.addCleanup(env.stop)
-        self.boxes = [SimpleNamespace(
-            xyxy=np.array([[10, 20, 40, 60]]), conf=[0.82], cls=[0],
-        )]
+        self.boxes = [
+            SimpleNamespace(
+                xyxy=np.array([[10, 20, 40, 60]]),
+                conf=[0.82],
+                cls=[0],
+            )
+        ]
         self.model = SimpleNamespace(names=CLASSES, predict=self.predict)
         self.client = self.enterContext(TestClient(create_app(lambda _: self.model)))
 
@@ -38,15 +46,26 @@ class ApiTests(unittest.TestCase):
             buffer = BytesIO()
             Image.new("L", (100, 80)).save(buffer, format="PNG")
             content = buffer.getvalue()
-        return self.client.post("/detect", files={"file": ("sonar.png", content, "image/png")})
+        return self.client.post(
+            "/detect", files={"file": ("sonar.png", content, "image/png")}
+        )
 
     def test_detection_contract(self):
         response = self.upload()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {
-            "detections": [{"class": "marine_anomaly", "confidence": 0.82, "bbox": [10, 20, 30, 40]}],
-            "image": {"width": 100, "height": 80},
-        })
+        self.assertEqual(
+            response.json(),
+            {
+                "detections": [
+                    {
+                        "class": "marine_anomaly",
+                        "confidence": 0.82,
+                        "bbox": [10, 20, 30, 40],
+                    }
+                ],
+                "image": {"width": 100, "height": 80},
+            },
+        )
 
     def test_empty_results(self):
         self.boxes = []
@@ -68,11 +87,19 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(self.upload(buffer.getvalue()).status_code, 415)
 
     def test_health_and_cors(self):
-        self.assertEqual(self.client.get("/health").json()["classes"], list(CLASSES.values()))
-        response = self.client.options("/detect", headers={
-            "Origin": "https://demo.vercel.app", "Access-Control-Request-Method": "POST",
-        })
-        self.assertEqual(response.headers["access-control-allow-origin"], "https://demo.vercel.app")
+        self.assertEqual(
+            self.client.get("/health").json()["classes"], list(CLASSES.values())
+        )
+        response = self.client.options(
+            "/detect",
+            headers={
+                "Origin": "https://demo.vercel.app",
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+        self.assertEqual(
+            response.headers["access-control-allow-origin"], "https://demo.vercel.app"
+        )
 
     def test_wrong_classes_fail_startup(self):
         model = SimpleNamespace(names={0: "0"})
@@ -81,7 +108,9 @@ class ApiTests(unittest.TestCase):
                 pass
 
     def test_missing_weights_fail_startup(self):
-        with patch.dict(os.environ, {"MODEL_PATH": str(Path(self.tmp.name) / "missing.pt")}):
+        with patch.dict(
+            os.environ, {"MODEL_PATH": str(Path(self.tmp.name) / "missing.pt")}
+        ):
             with self.assertRaisesRegex(RuntimeError, "Missing trained weights"):
                 with TestClient(create_app()):
                     pass

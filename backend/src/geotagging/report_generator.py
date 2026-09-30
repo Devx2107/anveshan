@@ -6,7 +6,8 @@ if you have it) tow-path metadata, and outputs structured reports.
 """
 
 import math
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+
 
 @dataclass
 class ReportEntry:
@@ -19,6 +20,7 @@ class ReportEntry:
     latitude: float
     longitude: float
     timestamp: str
+
 
 def generate_simulated_metadata(
     num_pings: int = 50,
@@ -36,14 +38,17 @@ def generate_simulated_metadata(
         d_lon = (dist_m * math.sin(math.radians(heading_deg))) / (
             earth_radius_m * math.cos(math.radians(start_lat))
         )
-        rows.append({
-            "ping_number": i,
-            "latitude": start_lat + math.degrees(d_lat),
-            "longitude": start_lon + math.degrees(d_lon),
-            "heading": heading_deg,
-            "timestamp": f"2026-09-05T10:{(22 + i) % 60:02d}:00Z",
-        })
+        rows.append(
+            {
+                "ping_number": i,
+                "latitude": start_lat + math.degrees(d_lat),
+                "longitude": start_lon + math.degrees(d_lon),
+                "heading": heading_deg,
+                "timestamp": f"2026-09-05T10:{(22 + i) % 60:02d}:00Z",
+            }
+        )
     return rows
+
 
 def pixel_to_latlon(
     bbox_center_x: float,
@@ -69,6 +74,7 @@ def pixel_to_latlon(
     lon = ping_meta_row["longitude"] + math.degrees(d_lon)
     return lat, lon
 
+
 def build_report(
     detections: list,
     ping_metadata: list[dict],
@@ -86,27 +92,42 @@ def build_report(
         lat = det.get("latitude")
         lon = det.get("longitude")
         if lat is None or lon is None:
-            lat, lon = pixel_to_latlon(cx, cy, image_width_px, image_height_px, swath_width_m, ping_row)
+            lat, lon = pixel_to_latlon(
+                cx, cy, image_width_px, image_height_px, swath_width_m, ping_row
+            )
 
-        entries.append(ReportEntry(
-            detection_id=f"D{idx:03d}",
-            ping_number=int(det.get("ping_number", ping_row["ping_number"])),
-            image_class=det["class"],
-            confidence=det.get("final_confidence", det.get("confidence", 0.0)),
-            flagged_for_review=det.get("flagged_for_review", False),
-            bbox_px=(x, y, w, h),
-            latitude=round(float(lat), 6),
-            longitude=round(float(lon), 6),
-            timestamp=str(det.get("timestamp", ping_row["timestamp"])),
-        ))
+        entries.append(
+            ReportEntry(
+                detection_id=f"D{idx:03d}",
+                ping_number=int(det.get("ping_number", ping_row["ping_number"])),
+                image_class=det["class"],
+                confidence=det.get("final_confidence", det.get("confidence", 0.0)),
+                flagged_for_review=det.get("flagged_for_review", False),
+                bbox_px=(x, y, w, h),
+                latitude=round(float(lat), 6),
+                longitude=round(float(lon), 6),
+                timestamp=str(det.get("timestamp", ping_row["timestamp"])),
+            )
+        )
 
     return entries
+
 
 if __name__ == "__main__":
     meta = generate_simulated_metadata(num_pings=10)
     dummy_detections = [
-        {"class": "pipe_cylinder", "final_confidence": 82.4, "flagged_for_review": False, "bbox": (100, 100, 60, 40)},
-        {"class": "unknown_anomaly", "final_confidence": 35.1, "flagged_for_review": True, "bbox": (300, 300, 30, 30)},
+        {
+            "class": "pipe_cylinder",
+            "final_confidence": 82.4,
+            "flagged_for_review": False,
+            "bbox": (100, 100, 60, 40),
+        },
+        {
+            "class": "unknown_anomaly",
+            "final_confidence": 35.1,
+            "flagged_for_review": True,
+            "bbox": (300, 300, 30, 30),
+        },
     ]
     report = build_report(dummy_detections, meta)
     for e in report:
