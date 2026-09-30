@@ -17,7 +17,6 @@ export default function HeatmapLayer({ points }: { points: [number, number, numb
       import('leaflet.heat').then(() => {
         if (!points || points.length === 0) return;
 
-        // @ts-expect-error leaflet.heat types might be missing
         heatLayer = L.heatLayer(points, {
           radius: 20,
           blur: 15,
