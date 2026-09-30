@@ -4,6 +4,7 @@
 /out/
 /build/
 /coverage/
+/.vercel/
 *.tsbuildinfo
 next-env.d.ts
 npm-debug.log*
@@ -26,6 +27,7 @@ __pycache__/
 /runs/
 /weights/
 /models/weights/
+/backend/models/weights/
 /yolov8n.pt
 /.tools/
 .ipynb_checkpoints/
