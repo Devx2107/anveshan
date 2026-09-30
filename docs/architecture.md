@@ -1,6 +1,6 @@
 # Architecture
 
-The system uses a Next.js frontend and a FastAPI backend with Roboflow for inference.
+The system uses a Next.js frontend and a FastAPI backend with a local model for inference.
 
 ```text
 User
@@ -14,7 +14,7 @@ Backend API (FastAPI)
   +----> [1] Preprocessing (clean_sonar.py)
   |
   v
-Roboflow Hosted ML API
+Local PC Inference Tunnel
   |
   +----> [2] Detection
   |

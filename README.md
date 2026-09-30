@@ -1,7 +1,5 @@
 # Anveshan (अन्वेषण)
 
-This repository follows the SIH 2026 template for project submission.
-
 ## 1. Project Information
 
 - **Project Title:** Anveshan (अन्वेषण) – AI-Powered Automated Underwater Marine Debris and Anomaly Detection System
@@ -52,7 +50,7 @@ Backend API (FastAPI)
   +----> [1] Preprocessing (clean_sonar.py)
   |
   v
-Roboflow Hosted ML API
+Local PC Inference Tunnel
   |
   +----> [2] Detection
   |
@@ -90,17 +88,17 @@ anveshan/
 
 ## 8. Final Presentation
 
-Keep your final SIH presentation in the repository whenever the file size allows it.
-
-See [submission/PRESENTATION.md](submission/PRESENTATION.md) for the required format.
+You can view our final SIH presentation here:
+[Final Presentation (Google Slides)](https://docs.google.com/presentation/d/1ynVbKB8ut9x5ZKoR_NL1yw7DKevzT_QI/edit?usp=sharing&ouid=104635454528691631841&rtpof=true&sd=true)
 
 ## 9. Demo Video
 
-Add the YouTube/Google Drive link in [submission/DEMO.md](submission/DEMO.md).
+You can watch the full demo of our project here:
+[Demo Video (Google Drive)](https://drive.google.com/file/d/1TayU_LuoYKk8IZuOyDH-MOXz0vyDdqnf/view?usp=drivesdk)
 
 ## 10. Screenshots / Prototype Photos
 
-Add important screenshots or hardware/prototype photos to `assets/screenshots/`.
+Screenshots and prototype photos can be found in the `assets/screenshots/` directory.
 
 ## 11. Installation
 
@@ -131,10 +129,16 @@ Copy `.env.example` to `.env`, then set:
 
 ## 12. Run
 
+**1. Start the FastAPI Backend:**
+```bash
+uvicorn api.index:app --reload --port 8000
+```
+
+**2. Start the Next.js Frontend:**
 ```bash
 npm run dev
 ```
-*(This starts both the Next.js frontend and the Python serverless functions via Vercel's dev environment).*
+*(This starts the Next.js frontend on `localhost:3000`).*
 
 **Demo Login Credentials:**
 - **Username:** `admin`
@@ -145,4 +149,8 @@ npm run dev
 Currently, this prototype routes object detection through a local PC tunnel. The dashboard performs preprocessing, confidence filtering, geotagging, and report generation locally.
 
 ---
-**Team:** Built by Team Unstable
+## Team Information
+
+- **Team Name**: \_Unstable\_
+- **Team ID**: 180239
+- **College**: Netaji Subhas University of Technology

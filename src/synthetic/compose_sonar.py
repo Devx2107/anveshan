@@ -3,7 +3,7 @@
 The compositor deliberately adds two sonar-specific cues: an elongated dark
 acoustic shadow on the side opposite the sonar source and multiplicative
 speckle. It is an augmentation tool, not a substitute for real annotated SSS
-data. Review generated images before uploading them to Roboflow.
+data. Review generated images before organizing them into your local training folder.
 
 Example:
     python -m src.synthetic.compose_sonar \

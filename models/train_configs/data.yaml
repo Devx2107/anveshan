@@ -1,5 +1,5 @@
-# YOLOv8 dataset config — fill in paths after exporting from Roboflow
-# Point train/val at the images folders from your Roboflow export
+# YOLOv8 dataset config
+# Point train/val at the images folders from your local dataset
 
 path: C:/Users/DevX/Desktop
 train: train/images
