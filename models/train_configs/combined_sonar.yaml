@@ -1,0 +1,17 @@
+# Combined PING ghost-pot and AI4Shipwrecks detection data.
+# Both sources use class 0 as marine_anomaly. Dataset files stay outside Git.
+
+train:
+  - "C:/Users/DevX/Desktop/ghostpots-yolo/train/images"
+  - "C:/Users/DevX/Desktop/ai4shipwrecks-yolo-v2/train/images"
+
+val:
+  - "C:/Users/DevX/Desktop/ghostpots-yolo/valid/images"
+  - "C:/Users/DevX/Desktop/ai4shipwrecks-yolo-v2/val/images"
+
+test:
+  - "C:/Users/DevX/Desktop/ghostpots-yolo/test/images"
+  - "C:/Users/DevX/Desktop/ai4shipwrecks-yolo-v2/test/images"
+
+names:
+  0: marine_anomaly

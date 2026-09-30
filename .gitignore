@@ -26,7 +26,6 @@ __pycache__/
 /data/
 /runs/
 /weights/
-/models/weights/
 /backend/models/weights/
 /yolov8n.pt
 /.tools/
@@ -37,3 +36,6 @@ __pycache__/
 .DS_Store
 *.swp
 *.pem
+
+# Local agent instructions
+AGENTS.md
