@@ -26,7 +26,7 @@ __pycache__/
 /data/
 /runs/
 /weights/
-/backend/models/weights/
+/backend/models/
 /yolov8n.pt
 /.tools/
 .ipynb_checkpoints/
