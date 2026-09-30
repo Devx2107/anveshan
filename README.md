@@ -73,14 +73,20 @@ anveshan/
 ├── submission/
 │   ├── PRESENTATION.md
 │   └── DEMO.md
-├── app/                  # Next.js React frontend
-├── components/           # React components
-├── api/                  # Python FastAPI backend
-├── data/demo/            # Demo images and CSV mock responses
+├── src/                  # Next.js React frontend
+│   ├── app/              # Next.js App Router
+│   └── components/       # React components
+├── api/                  # Vercel serverless functions entry point
+├── backend/              # Python backend and Machine Learning
+│   ├── src/              # Python FastAPI backend & ML logic
+│   ├── models/           # ML weights and training configs
+│   ├── data/             # Demo images and CSV mock responses
+│   └── tests/            # Python tests
 ├── docs/                 # Architecture documentation
 │   └── architecture.md
 ├── assets/
 │   └── screenshots/      # Important screenshots
+├── scripts/              # Utility scripts for tunneling/inference
 ├── requirements.txt      # Python dependencies
 ├── package.json          # Node.js dependencies
 └── ...

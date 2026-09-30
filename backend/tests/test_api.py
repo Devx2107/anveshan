@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 import numpy as np
 from PIL import Image
 
-from src.api.main import CLASSES, MAX_BYTES, create_app
+from backend.src.api.main import CLASSES, MAX_BYTES, create_app
 
 
 class ApiTests(unittest.TestCase):
