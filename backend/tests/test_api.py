@@ -103,13 +103,20 @@ class ApiTests(unittest.TestCase):
 
     def test_wrong_classes_fail_startup(self):
         model = SimpleNamespace(names={0: "0"})
-        with self.assertRaisesRegex(RuntimeError, "Model classes must"), TestClient(create_app(lambda _: model)):
+        with (
+            self.assertRaisesRegex(RuntimeError, "Model classes must"),
+            TestClient(create_app(lambda _: model)),
+        ):
             pass
 
     def test_missing_weights_fail_startup(self):
-        with patch.dict(
-            os.environ, {"MODEL_PATH": str(Path(self.tmp.name) / "missing.pt")}
-        ), self.assertRaisesRegex(RuntimeError, "Missing trained weights"), TestClient(create_app()):
+        with (
+            patch.dict(
+                os.environ, {"MODEL_PATH": str(Path(self.tmp.name) / "missing.pt")}
+            ),
+            self.assertRaisesRegex(RuntimeError, "Missing trained weights"),
+            TestClient(create_app()),
+        ):
             pass
 
 

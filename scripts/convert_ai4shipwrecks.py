@@ -78,10 +78,22 @@ def convert_pair(
     pad_right = max(0, side - width)
     if pad_bottom or pad_right:
         image = cv2.copyMakeBorder(
-            image, 0, pad_bottom, 0, pad_right, cv2.BORDER_CONSTANT, value=0,
+            image,
+            0,
+            pad_bottom,
+            0,
+            pad_right,
+            cv2.BORDER_CONSTANT,
+            value=0,
         )
         mask = cv2.copyMakeBorder(
-            mask, 0, pad_bottom, 0, pad_right, cv2.BORDER_CONSTANT, value=0,
+            mask,
+            0,
+            pad_bottom,
+            0,
+            pad_right,
+            cv2.BORDER_CONSTANT,
+            value=0,
         )
 
     written = 0
@@ -91,21 +103,31 @@ def convert_pair(
         for col_index, x_start in enumerate(col_starts):
             image_tile = image[y_start : y_start + side, x_start : x_start + side]
             mask_tile = mask[y_start : y_start + side, x_start : x_start + side]
-            tile_stem = f"{prefix}__{image_path.stem}__r{row_index:02d}_c{col_index:02d}"
+            tile_stem = (
+                f"{prefix}__{image_path.stem}__r{row_index:02d}_c{col_index:02d}"
+            )
             image_path_out = image_out / f"{tile_stem}.png"
             label_path_out = label_out / f"{tile_stem}.txt"
             if not cv2.imwrite(str(image_path_out), image_tile):
                 raise SystemExit(f"Could not write image tile: {image_path_out}")
-            label_path_out.write_text("\n".join(mask_to_yolo(mask_tile)), encoding="utf-8")
+            label_path_out.write_text(
+                "\n".join(mask_to_yolo(mask_tile)), encoding="utf-8"
+            )
             written += 1
     return written
 
 
-def convert(source: Path, output: Path, val_site: str, tile_size: int, stride: int) -> None:
+def convert(
+    source: Path, output: Path, val_site: str, tile_size: int, stride: int
+) -> None:
     if output.exists() and any(output.iterdir()):
-        raise SystemExit(f"Output folder is not empty: {output}\nChoose an empty output folder.")
+        raise SystemExit(
+            f"Output folder is not empty: {output}\nChoose an empty output folder."
+        )
     if stride <= 0 or stride > tile_size:
-        raise SystemExit("--stride must be greater than 0 and no larger than --tile-size.")
+        raise SystemExit(
+            "--stride must be greater than 0 and no larger than --tile-size."
+        )
 
     train_source = source / "train"
     test_source = source / "test"
@@ -127,14 +149,20 @@ def convert(source: Path, output: Path, val_site: str, tile_size: int, stride: i
         for image_path in sorted((test_source / "images").glob("*.png"))
     ]
     if not groups["val"]:
-        available = sorted({site_name(p.stem) for p in (train_source / "images").glob("*.png")})
-        raise SystemExit(f"Validation site '{val_site}' not found. Available sites: {available}")
+        available = sorted(
+            {site_name(p.stem) for p in (train_source / "images").glob("*.png")}
+        )
+        raise SystemExit(
+            f"Validation site '{val_site}' not found. Available sites: {available}"
+        )
     if not groups["train"] or not groups["test"]:
         raise SystemExit("Expected non-empty training and official test image folders.")
 
     for image_path, label_path in [*groups["train"], *groups["val"], *groups["test"]]:
         if not label_path.is_file():
-            raise SystemExit(f"Missing mask for image: {image_path} (expected {label_path})")
+            raise SystemExit(
+                f"Missing mask for image: {image_path} (expected {label_path})"
+            )
 
     if terrain_source.exists():
         terrain_images = terrain_source / "images"
@@ -157,8 +185,13 @@ def convert(source: Path, output: Path, val_site: str, tile_size: int, stride: i
         for image_path, mask_path in pairs:
             prefix = "terrain" if terrain_source in image_path.parents else split
             tile_counts[split] += convert_pair(
-                image_path, mask_path, image_out, label_out,
-                prefix, tile_size, stride,
+                image_path,
+                mask_path,
+                image_out,
+                label_out,
+                prefix,
+                tile_size,
+                stride,
             )
             source_counts[split] += 1
 
@@ -173,7 +206,9 @@ def convert(source: Path, output: Path, val_site: str, tile_size: int, stride: i
         encoding="utf-8",
     )
     for split in ("train", "val", "test"):
-        print(f"{split}: {source_counts[split]} source images -> {tile_counts[split]} tiles")
+        print(
+            f"{split}: {source_counts[split]} source images -> {tile_counts[split]} tiles"
+        )
     print(f"YOLO config: {yaml_path}")
     print(f"Validation held out by site: {val_site}")
     print("The official test split was kept separate; do not train on it.")
@@ -181,10 +216,18 @@ def convert(source: Path, output: Path, val_site: str, tile_size: int, stride: i
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, required=True, help="Extracted AI4Shipwrecks folder")
-    parser.add_argument("--output", type=Path, required=True, help="New output folder outside the Git repo")
     parser.add_argument(
-        "--val-site", default="DM_Wilson",
+        "--source", type=Path, required=True, help="Extracted AI4Shipwrecks folder"
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="New output folder outside the Git repo",
+    )
+    parser.add_argument(
+        "--val-site",
+        default="DM_Wilson",
         help="Whole training site reserved for validation (default: DM_Wilson)",
     )
     parser.add_argument("--tile-size", type=int, default=1728)

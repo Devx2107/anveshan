@@ -12,7 +12,9 @@ SPLITS = ("train", "valid", "test")
 
 def convert(source: Path, output: Path, include_maybe: bool = False) -> None:
     if output.exists() and any(output.iterdir()):
-        raise SystemExit(f"Output folder is not empty: {output}\nChoose a new folder or move its contents first.")
+        raise SystemExit(
+            f"Output folder is not empty: {output}\nChoose a new folder or move its contents first."
+        )
 
     for split in SPLITS:
         source_split = source / split
@@ -34,7 +36,9 @@ def convert(source: Path, output: Path, include_maybe: bool = False) -> None:
                 filename = record["file_name"]
                 image_path = source_split / filename
                 if not image_path.is_file():
-                    raise SystemExit(f"Image not found at {metadata_path}:{line_number}: {image_path}")
+                    raise SystemExit(
+                        f"Image not found at {metadata_path}:{line_number}: {image_path}"
+                    )
 
                 relative = Path(filename)
                 image_target = image_out / relative
@@ -46,14 +50,22 @@ def convert(source: Path, output: Path, include_maybe: bool = False) -> None:
                 boxes = objects.get("bbox", [])
                 categories = objects.get("category", [])
                 if len(boxes) != len(categories):
-                    raise SystemExit(f"Mismatched boxes/categories at {metadata_path}:{line_number}")
+                    raise SystemExit(
+                        f"Mismatched boxes/categories at {metadata_path}:{line_number}"
+                    )
 
                 with Image.open(image_path) as image:
                     width, height = image.size
                 yolo_rows = []
                 for box, category in zip(boxes, categories):
-                    normalized_category = str(category).strip().casefold().replace("_", "-")
-                    if normalized_category == "crab-pot" or include_maybe and normalized_category == "maybe-crab-pot":
+                    normalized_category = (
+                        str(category).strip().casefold().replace("_", "-")
+                    )
+                    if (
+                        normalized_category == "crab-pot"
+                        or include_maybe
+                        and normalized_category == "maybe-crab-pot"
+                    ):
                         pass
                     else:
                         continue
@@ -79,10 +91,15 @@ def convert(source: Path, output: Path, include_maybe: bool = False) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, required=True, help="Hugging Face dataset folder")
-    parser.add_argument("--output", type=Path, required=True, help="New YOLO dataset folder")
     parser.add_argument(
-        "--include-maybe", action="store_true",
+        "--source", type=Path, required=True, help="Hugging Face dataset folder"
+    )
+    parser.add_argument(
+        "--output", type=Path, required=True, help="New YOLO dataset folder"
+    )
+    parser.add_argument(
+        "--include-maybe",
+        action="store_true",
         help="Include the ambiguous Maybe-Crab-Pot annotations as class 0",
     )
     args = parser.parse_args()

@@ -95,8 +95,9 @@ def _add_shadow(
     shadow_y = y + max(0, (height - elongated.shape[0]) // 2)
 
     x1, y1 = max(0, shadow_x), max(0, shadow_y)
-    x2, y2 = min(image.shape[1], shadow_x + elongated.shape[1]), min(
-        image.shape[0], shadow_y + elongated.shape[0]
+    x2, y2 = (
+        min(image.shape[1], shadow_x + elongated.shape[1]),
+        min(image.shape[0], shadow_y + elongated.shape[0]),
     )
     if x1 >= x2 or y1 >= y2:
         return image
@@ -188,8 +189,9 @@ def create_dataset(
     seed: int | None,
 ) -> None:
     """Write matching image/YOLO-label files to `output_dir`."""
-    backgrounds, objects = list(_image_paths(background_dir)), list(
-        _image_paths(object_dir)
+    backgrounds, objects = (
+        list(_image_paths(background_dir)),
+        list(_image_paths(object_dir)),
     )
     if not backgrounds or not objects:
         raise ValueError(
