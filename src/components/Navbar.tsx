@@ -26,6 +26,11 @@ export default function Navbar() {
     setMounted(true);
   }, []);
 
+  // Force scroll to top on route change to fix intermittent scrolling bugs with Framer Motion
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {

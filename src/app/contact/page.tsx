@@ -6,9 +6,9 @@ import { motion } from 'framer-motion';
 
 export default function Contact() {
   return (
-    <div className="max-w-7xl mx-auto px-6 py-20 md:py-32 flex-1 w-full flex flex-col md:flex-row gap-16 md:gap-24 relative z-10">
+    <div className="max-w-7xl mx-auto px-6 pt-6 pb-20 md:pt-6 md:pb-32 flex-1 w-full flex flex-col md:flex-row gap-16 md:gap-24 relative z-10">
       {/* Left Column - Big Typography */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -23,7 +23,7 @@ export default function Contact() {
       </motion.div>
 
       {/* Right Column - Minimalist Contact List */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
@@ -32,18 +32,18 @@ export default function Contact() {
         {/* Contact 1 */}
         <div className="group border-b border-slate-200 dark:border-slate-800 py-10 transition-colors hover:border-cyan-500/50">
           <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400 tracking-wider uppercase mb-2">Lead Developer</p>
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">Agrim Garg</h2>
-          
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">First Person</h2>
+
           <div className="flex flex-col gap-6">
             <a href="mailto:contact@example.com" className="inline-flex items-center gap-4 text-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all w-fit group/link">
               <Mail size={20} className="text-slate-400 group-hover/link:text-cyan-500 transition-colors" />
               <span className="relative overflow-hidden">
-                contact@example.com
+                first@example.com
                 <span className="absolute bottom-0 left-0 w-full h-[1px] bg-cyan-500 transform origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100"></span>
               </span>
               <ArrowUpRight size={16} className="opacity-0 -translate-x-2 translate-y-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 group-hover/link:translate-y-0 transition-all duration-300 text-cyan-500" />
             </a>
-            
+
             <a href="tel:+911234567890" className="inline-flex items-center gap-4 text-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all w-fit group/link">
               <Phone size={20} className="text-slate-400 group-hover/link:text-cyan-500 transition-colors" />
               <span className="relative overflow-hidden">
@@ -58,7 +58,7 @@ export default function Contact() {
         <div className="group border-b border-slate-200 dark:border-slate-800 py-10 transition-colors hover:border-cyan-500/50">
           <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400 tracking-wider uppercase mb-2">Co-Founder</p>
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">Second Person</h2>
-          
+
           <div className="flex flex-col gap-6">
             <a href="mailto:second@example.com" className="inline-flex items-center gap-4 text-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all w-fit group/link">
               <Mail size={20} className="text-slate-400 group-hover/link:text-cyan-500 transition-colors" />
@@ -68,7 +68,7 @@ export default function Contact() {
               </span>
               <ArrowUpRight size={16} className="opacity-0 -translate-x-2 translate-y-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 group-hover/link:translate-y-0 transition-all duration-300 text-cyan-500" />
             </a>
-            
+
             <a href="tel:+910987654321" className="inline-flex items-center gap-4 text-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all w-fit group/link">
               <Phone size={20} className="text-slate-400 group-hover/link:text-cyan-500 transition-colors" />
               <span className="relative overflow-hidden">

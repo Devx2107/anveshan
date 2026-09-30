@@ -8,7 +8,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 selection:bg-cyan-500/30 overflow-x-hidden font-sans transition-colors">
       {/* Hero Section */}
-      <main className="relative z-10 pt-20 pb-24 lg:pt-28 lg:pb-32">
+      <main className="relative z-10 pt-6 pb-24 lg:pt-6 lg:pb-32">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center flex flex-col items-center">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}

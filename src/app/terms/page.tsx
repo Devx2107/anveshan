@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 export default function TermsAndConditions() {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-20 md:py-32 flex-1 w-full relative z-10">
+    <div className="max-w-4xl mx-auto px-6 pt-6 pb-20 md:pt-6 md:pb-32 flex-1 w-full relative z-10">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
