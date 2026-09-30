@@ -32,7 +32,7 @@ Anveshan allows users to upload a sonar image which is then preprocessed (despec
 
 - **Frontend:** Next.js (React), Tailwind CSS, React Leaflet
 - **Backend:** Python, FastAPI, OpenCV
-- **Machine Learning:** Roboflow (training and hosted inference API)
+- **Machine Learning:** Local PC Tunnel (inference API)
 - **Deployment:** Vercel (Next.js + Python serverless)
 - **Datasets:** [PING Ecosystem Ghost-Pot SSS dataset](https://huggingface.co/datasets/PINGEcosystem/sss-crab-pot-detection-ds), [SeabedObjects-KLSG](https://www.kaggle.com/datasets/enochkwatehdongbo/seabedobjects-klsg-dataset), [Marine_PULSE](https://doi.org/10.5281/zenodo.7922705), Synthetic augmentations
 
@@ -125,7 +125,7 @@ npm install
 
 **Environment Variables:**
 Copy `.env.example` to `.env`, then set:
-- Roboflow model ID and private API key (e.g., `dev-manchanda/marine-sonar-debris/1`).
+- `INFERENCE_API_URL` with your local tunnel URL.
 - `NEXT_PUBLIC_CARTO_API_KEY` with the key requested from https://carto.com/basemaps/apikey/ for the map tiles.
 *(Note: Do not commit `.env` to Git).*
 
@@ -142,7 +142,7 @@ npm run dev
 
 ## 13. Future Scope
 
-Currently, this prototype trains and runs object detection through Roboflow's hosted service because a local GPU is not currently available. The dashboard performs preprocessing, confidence filtering, geotagging, and report generation locally. Local/edge model export is future work and is not claimed for this version.
+Currently, this prototype routes object detection through a local PC tunnel. The dashboard performs preprocessing, confidence filtering, geotagging, and report generation locally.
 
 ---
 **Team:** Built by Team Unstable

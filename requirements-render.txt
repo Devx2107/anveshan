@@ -1,6 +1,0 @@
-# CPU-only inference dependencies for Render. Keep separate from the CUDA
-# workstation environment and the broader training/development requirements.
---extra-index-url https://download.pytorch.org/whl/cpu
-torch>=2.2.0
-torchvision>=0.17.0
--r requirements-api.txt

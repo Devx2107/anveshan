@@ -1,11 +1,9 @@
-/* eslint-disable */
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { UploadCloud, Download, FileJson, FileSpreadsheet, Map as MapIcon, Image as ImageIcon, CheckCircle, AlertTriangle, Loader2, BarChart } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/components/AuthProvider';
@@ -31,9 +29,11 @@ export default function Dashboard() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [apiError, setApiError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [result, setResult] = useState<any>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -114,6 +114,7 @@ export default function Dashboard() {
         ctx.drawImage(img, 0, 0);
 
         if (result.detections) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           result.detections.forEach((d: any) => {
             const [x, y, w, h] = d.bbox;
             const flagged = d.flagged_for_review;
@@ -159,6 +160,7 @@ export default function Dashboard() {
   const downloadCsv = () => {
     if (!result || !result.report || result.report.length === 0) return;
     const headers = Object.keys(result.report[0]).join(',');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rows = result.report.map((r: any) =>
       Object.values(r).map(v => {
         if (typeof v === 'object' && v !== null) {
@@ -179,11 +181,13 @@ export default function Dashboard() {
     a.click();
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [leafletLib, setLeafletLib] = useState<any>(null);
 
   // Map icon fix for leaflet
   useEffect(() => {
     import('leaflet').then((leaflet) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
       leaflet.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -387,6 +391,7 @@ export default function Dashboard() {
 
               {previewUrl && !result && !loading && (
                 <div className="flex-1 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-100 dark:bg-black flex items-center justify-center transition-colors">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={previewUrl} alt="Upload Preview" className="max-w-full max-h-[600px] object-contain" />
                 </div>
               )}
@@ -398,6 +403,7 @@ export default function Dashboard() {
                       <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Raw Input</h3>
                     </div>
                     <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-100 dark:bg-black aspect-square flex items-center justify-center transition-colors">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={previewUrl!} alt="Original Input" className="max-w-full max-h-full object-contain" />
                     </div>
                   </div>
@@ -452,6 +458,7 @@ export default function Dashboard() {
                           url={cartoTileUrl}
                           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                         />
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                         {result.report.map((entry: any) => {
                           const iconHtml = entry.flagged_for_review
                             ? '<div style="background-color:#f97316; width:16px; height:16px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);"></div>'
@@ -488,6 +495,7 @@ export default function Dashboard() {
                   <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
                     {result.report && result.report.length > 0 ? (
                       <div className="space-y-3">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                         {result.report.map((entry: any) => (
                           <div
                             key={entry.detection_id}

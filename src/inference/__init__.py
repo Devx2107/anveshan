@@ -1,5 +1,5 @@
 """Hosted model inference adapters."""
 
-from .roboflow_client import predict
+from .tunnel_client import predict
 
 __all__ = ["predict"]

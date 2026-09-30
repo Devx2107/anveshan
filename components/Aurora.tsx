@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
 import { useTheme } from 'next-themes';
 
@@ -137,9 +137,11 @@ export default function Aurora(props: AuroraProps) {
   const isLightMode = props.lightMode !== undefined ? props.lightMode : currentTheme === 'light';
   
   const { colorStops = ['#5227FF', '#7cff67', '#5227FF'], amplitude = 1.0, blend = 0.5 } = props;
-  const currentProps = { ...props, lightMode: isLightMode };
+  const currentProps = useMemo(() => ({ ...props, lightMode: isLightMode }), [props, isLightMode]);
   const propsRef = useRef<AuroraProps>(currentProps);
-  propsRef.current = currentProps;
+  useEffect(() => {
+    propsRef.current = currentProps;
+  }, [currentProps]);
 
   const ctnDom = useRef<HTMLDivElement>(null);
 
@@ -158,19 +160,6 @@ export default function Aurora(props: AuroraProps) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = 'transparent';
 
-    let program: Program | undefined;
-
-    function resize() {
-      if (!ctn) return;
-      const width = ctn.offsetWidth;
-      const height = ctn.offsetHeight;
-      renderer.setSize(width, height);
-      if (program) {
-        program.uniforms.uResolution.value = [width, height];
-      }
-    }
-    window.addEventListener('resize', resize);
-
     const geometry = new Triangle(gl);
     if (geometry.attributes.uv) {
       delete geometry.attributes.uv;
@@ -182,7 +171,7 @@ export default function Aurora(props: AuroraProps) {
       return [c.r, c.g, c.b];
     });
 
-    program = new Program(gl, {
+    const program = new Program(gl, {
       vertex: VERT,
       fragment: FRAG,
       uniforms: {
@@ -194,6 +183,15 @@ export default function Aurora(props: AuroraProps) {
         uLightMode: { value: isLightMode ? 1 : 0 }
       }
     });
+
+    function resize() {
+      if (!ctn) return;
+      const width = ctn.offsetWidth;
+      const height = ctn.offsetHeight;
+      renderer.setSize(width, height);
+      program.uniforms.uResolution.value = [width, height];
+    }
+    window.addEventListener('resize', resize);
 
     const mesh = new Mesh(gl, { geometry, program });
     ctn.appendChild(gl.canvas);
@@ -252,8 +250,8 @@ export default function Aurora(props: AuroraProps) {
       if (ctn && gl.canvas.parentNode === ctn) {
         ctn.removeChild(gl.canvas);
       }
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div ref={ctnDom} className="w-full h-full" />;

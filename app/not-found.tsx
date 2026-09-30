@@ -40,7 +40,7 @@ export default function NotFound() {
         transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
         className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-10 text-lg"
       >
-        It looks like this sector hasn't been scanned yet. The page you are looking for doesn't exist or has been moved.
+        It looks like this sector hasn&apos;t been scanned yet. The page you are looking for doesn&apos;t exist or has been moved.
       </motion.p>
 
       <motion.div
