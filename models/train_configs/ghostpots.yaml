@@ -1,0 +1,8 @@
+# Converted PING ghost-pot dataset. The folder is intentionally outside Git.
+path: C:/Users/DevX/Desktop/ghostpots-yolo
+train: train/images
+val: valid/images
+test: test/images
+
+names:
+  0: marine_anomaly
