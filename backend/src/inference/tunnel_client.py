@@ -1,8 +1,8 @@
 """Tunnel API adapter for Anveshan detections."""
 
 import cv2
-import requests
 import numpy as np
+import requests
 
 
 def predict(

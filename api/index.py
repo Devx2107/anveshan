@@ -1,28 +1,29 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
-import numpy as np
-import cv2
-import sys
-import os
-import io
 import base64
-from pathlib import Path
-from PIL import Image
+import io
+import os
+import sys
 from dataclasses import asdict
-import requests
+from pathlib import Path
+from typing import Annotated
 
+import cv2
+import numpy as np
+import requests
 from dotenv import load_dotenv
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
+from PIL import Image
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=True)
 
 # Add backend/src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend", "src"))
 
-from preprocessing.clean_sonar import clean
-from inference.tunnel_client import predict
 from confidence_filter.confidence_filter import refine_detections
-from geotagging.report_generator import generate_simulated_metadata, build_report
 from demo.csv_results import expected_demo_filenames, load_demo_results
+from geotagging.report_generator import build_report, generate_simulated_metadata
+from inference.tunnel_client import predict
+from preprocessing.clean_sonar import clean
 
 app = FastAPI()
 
@@ -45,7 +46,7 @@ def _convert_to_degrees(value):
         m = to_float(value[1])
         s = to_float(value[2])
         return d + (m / 60.0) + (s / 3600.0)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return 0.0
 
 
@@ -76,13 +77,13 @@ def get_exif_location(image: Image.Image):
                 lon = 0 - lon
 
             return lat, lon
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error parsing EXIF: {e}")
     return None, None
 
 
 @app.post("/api/process")
-async def process_image(file: UploadFile = File(...)):
+async def process_image(file: Annotated[UploadFile, File(...)]):
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents))
@@ -209,7 +210,7 @@ async def process_image(file: UploadFile = File(...)):
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         return JSONResponse(status_code=500, content={"detail": str(e)})
 
 

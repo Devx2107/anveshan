@@ -16,8 +16,8 @@ Example:
 from __future__ import annotations
 
 import argparse
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, Tuple
 
 import cv2
 import numpy as np
@@ -51,7 +51,7 @@ def _transform_object(
     mask: np.ndarray,
     scale: float,
     angle_deg: float,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Scale and rotate an object and its mask without cropping the result."""
     gray = _as_grayscale(object_crop)
     height, width = gray.shape[:2]
@@ -76,7 +76,7 @@ def _transform_object(
 def _add_shadow(
     image: np.ndarray,
     mask: np.ndarray,
-    top_left: Tuple[int, int],
+    top_left: tuple[int, int],
     sonar_source: str,
     shadow_scale: float,
 ) -> np.ndarray:
@@ -124,7 +124,7 @@ def compose_example(
     object_mask: np.ndarray | None = None,
     sonar_source: str = "left",
     rng: np.random.Generator | None = None,
-) -> Tuple[np.ndarray, str]:
+) -> tuple[np.ndarray, str]:
     """Return a composite and one normalized YOLO label line.
 
     `sonar_source` is either ``left`` or ``right``. The acoustic shadow is

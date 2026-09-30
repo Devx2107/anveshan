@@ -2,11 +2,10 @@
 
 import argparse
 import json
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 from PIL import Image
-
 
 SPLITS = ("train", "valid", "test")
 
@@ -54,9 +53,7 @@ def convert(source: Path, output: Path, include_maybe: bool = False) -> None:
                 yolo_rows = []
                 for box, category in zip(boxes, categories):
                     normalized_category = str(category).strip().casefold().replace("_", "-")
-                    if normalized_category == "crab-pot":
-                        pass
-                    elif include_maybe and normalized_category == "maybe-crab-pot":
+                    if normalized_category == "crab-pot" or include_maybe and normalized_category == "maybe-crab-pot":
                         pass
                     else:
                         continue

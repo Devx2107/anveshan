@@ -15,10 +15,10 @@ export default function Contact() {
         className="md:w-5/12 md:sticky md:top-32 h-fit"
       >
         <h1 className="text-5xl md:text-7xl font-sans font-extrabold tracking-tight text-slate-900 dark:text-white mb-6">
-          Let's talk.
+          Let&apos;s talk.
         </h1>
         <p className="text-xl text-slate-600 dark:text-slate-400 font-medium max-w-md">
-          Reach out to the team behind Anveshan. We're always open to discussing new opportunities.
+          Reach out to the team behind Anveshan. We&apos;re always open to discussing new opportunities.
         </p>
       </motion.div>
 

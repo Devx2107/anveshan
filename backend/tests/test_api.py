@@ -1,15 +1,15 @@
 """Contract tests without downloading model weights or requiring a GPU."""
 
-from io import BytesIO
 import os
+import unittest
+from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
-import unittest
 from unittest.mock import patch
 
-from fastapi.testclient import TestClient
 import numpy as np
+from fastapi.testclient import TestClient
 from PIL import Image
 
 from backend.src.api.main import CLASSES, MAX_BYTES, create_app
@@ -103,17 +103,14 @@ class ApiTests(unittest.TestCase):
 
     def test_wrong_classes_fail_startup(self):
         model = SimpleNamespace(names={0: "0"})
-        with self.assertRaisesRegex(RuntimeError, "Model classes must"):
-            with TestClient(create_app(lambda _: model)):
-                pass
+        with self.assertRaisesRegex(RuntimeError, "Model classes must"), TestClient(create_app(lambda _: model)):
+            pass
 
     def test_missing_weights_fail_startup(self):
         with patch.dict(
             os.environ, {"MODEL_PATH": str(Path(self.tmp.name) / "missing.pt")}
-        ):
-            with self.assertRaisesRegex(RuntimeError, "Missing trained weights"):
-                with TestClient(create_app()):
-                    pass
+        ), self.assertRaisesRegex(RuntimeError, "Missing trained weights"), TestClient(create_app()):
+            pass
 
 
 if __name__ == "__main__":

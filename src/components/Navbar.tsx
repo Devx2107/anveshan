@@ -78,8 +78,8 @@ export default function Navbar() {
                 href="/"
                 onClick={handleHomeClick}
                 className={`transition-all duration-200 py-1 ${pathname === '/'
-                    ? 'text-cyan-600 dark:text-cyan-400 font-semibold drop-shadow-[0_0_8px_rgba(8,145,178,0.4)] dark:drop-shadow-[0_0_10px_rgba(34,211,238,0.65)]'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] dark:hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)]'
+                  ? 'text-cyan-600 dark:text-cyan-400 font-semibold drop-shadow-[0_0_8px_rgba(8,145,178,0.4)] dark:drop-shadow-[0_0_10px_rgba(34,211,238,0.65)]'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] dark:hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)]'
                   }`}
               >
                 Home
@@ -87,8 +87,8 @@ export default function Navbar() {
               <Link
                 href="/console"
                 className={`transition-all duration-200 py-1 ${pathname === '/console'
-                    ? 'text-cyan-600 dark:text-cyan-400 font-semibold drop-shadow-[0_0_8px_rgba(8,145,178,0.4)] dark:drop-shadow-[0_0_10px_rgba(34,211,238,0.65)]'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] dark:hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)]'
+                  ? 'text-cyan-600 dark:text-cyan-400 font-semibold drop-shadow-[0_0_8px_rgba(8,145,178,0.4)] dark:drop-shadow-[0_0_10px_rgba(34,211,238,0.65)]'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] dark:hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.2)]'
                   }`}
               >
                 Console
@@ -110,7 +110,12 @@ export default function Navbar() {
                       className="w-9 h-9 flex items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       aria-label="Settings"
                     >
-                      <Settings size={20} />
+                      <motion.div
+                        animate={{ rotate: isDropdownOpen ? 45 : 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      >
+                        <Settings size={20} />
+                      </motion.div>
                     </button>
 
                     <AnimatePresence>
@@ -215,8 +220,8 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     className={`flex items-center gap-2 text-sm font-semibold px-5 py-2 rounded-full transition-all ${pathname === '/login'
-                        ? 'bg-cyan-500 text-white dark:text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-                        : 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-950 shadow-md dark:shadow-[0_0_20px_rgba(255,255,255,0.1)] dark:hover:shadow-[0_0_25px_rgba(255,255,255,0.2)]'
+                      ? 'bg-cyan-500 text-white dark:text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+                      : 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-950 shadow-md dark:shadow-[0_0_20px_rgba(255,255,255,0.1)] dark:hover:shadow-[0_0_25px_rgba(255,255,255,0.2)]'
                       }`}
                   >
                     <LogIn size={16} />

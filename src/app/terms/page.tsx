@@ -49,14 +49,14 @@ export default function TermsAndConditions() {
           </h2>
           <div className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg">
             <p className="mb-4">
-              Permission is granted to temporarily download one copy of the materials on Anveshan's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
+              Permission is granted to temporarily download one copy of the materials on Anveshan&apos;s website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
             </p>
             <ul className="list-disc pl-6 space-y-3 marker:text-cyan-500">
               <li>modify or copy the materials;</li>
               <li>use the materials for any commercial purpose or for any public display;</li>
-              <li>attempt to reverse engineer any software contained on Anveshan's website;</li>
+              <li>attempt to reverse engineer any software contained on Anveshan&apos;s website;</li>
               <li>remove any copyright or other proprietary notations from the materials; or</li>
-              <li>transfer the materials to another person or "mirror" the materials on any other server.</li>
+              <li>transfer the materials to another person or &quot;mirror&quot; the materials on any other server.</li>
             </ul>
           </div>
         </section>
@@ -70,7 +70,7 @@ export default function TermsAndConditions() {
           </h2>
           <div className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg">
             <p>
-              All the materials on Anveshan’s Website are provided "as is". Anveshan makes no warranties, may it be expressed or implied, therefore negates all other warranties. Furthermore, Anveshan does not make any representations concerning the accuracy or reliability of the use of the materials on its Website or otherwise relating to such materials or any sites linked to this Website.
+              All the materials on Anveshan’s Website are provided &quot;as is&quot;. Anveshan makes no warranties, may it be expressed or implied, therefore negates all other warranties. Furthermore, Anveshan does not make any representations concerning the accuracy or reliability of the use of the materials on its Website or otherwise relating to such materials or any sites linked to this Website.
             </p>
           </div>
         </section>

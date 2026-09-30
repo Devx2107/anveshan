@@ -1,10 +1,11 @@
 """Local YOLO inference: uvicorn src.api.main:app --port 8000."""
 
+import os
 from contextlib import asynccontextmanager
 from io import BytesIO
-import os
 from pathlib import Path
 from threading import Lock
+from typing import Annotated
 
 import numpy as np
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -61,7 +62,7 @@ def create_app(model_loader=load_model):
         return {"status": "ok", "classes": list(CLASSES.values())}
 
     @app.post("/detect")
-    def detect(file: UploadFile = File(...)):
+    def detect(file: Annotated[UploadFile, File(...)]):
         """Infer on an already-preprocessed image; boxes use submitted-image pixels."""
         content = file.file.read(MAX_BYTES + 1)
         if len(content) > MAX_BYTES:
