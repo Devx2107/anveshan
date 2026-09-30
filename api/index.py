@@ -121,7 +121,10 @@ async def process_image(file: UploadFile = File(...)):
             if not api_url:
                 raise HTTPException(
                     status_code=503,
-                    detail="Inference tunnel is not configured. Set INFERENCE_API_URL in .env.",
+                    detail=(
+                        "Inference tunnel is not configured. "
+                        "Set INFERENCE_API_URL in .env."
+                    ),
                 )
 
             try:
