@@ -1,11 +1,8 @@
 fastapi>=0.110.0,<1
 uvicorn>=0.27.0,<1
 python-multipart>=0.0.18,<1
-ultralytics>=8.2.0,<9
 pillow>=10.2.0,<13
 numpy>=1.26.0,<3
-# CPU-only inference dependencies for Render. Keep separate from the CUDA
-# workstation environment and the broader training/development requirements.
---extra-index-url https://download.pytorch.org/whl/cpu
-torch>=2.2.0
-torchvision>=0.17.0
+opencv-python-headless>=4.9.0,<5
+requests>=2.31.0,<3
+python-dotenv>=1.0.1,<2
