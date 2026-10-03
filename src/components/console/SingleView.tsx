@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, AlertTriangle, MapIcon, Target, CheckCircle, Navigation, Image as ImageIcon } from 'lucide-react';
 import { QueueItem, ReportEntry } from '@/types';
 import type { Map as LeafletMap } from 'leaflet';
@@ -111,7 +112,6 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
   if (!activeItem) {
     return (
       <div className="aspect-[21/9] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 text-center p-8">
-        <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-3" />
         <div className="text-slate-600 dark:text-slate-400 font-medium text-lg">No Selection</div>
         <p className="text-xs text-slate-500">Click &quot;Process&quot; in the upload menu to begin.</p>
       </div>
@@ -123,7 +123,6 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
       <div className="bg-white/80 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-sm">
         {activeItem.status === 'pending' && (
           <div className="aspect-[21/9] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 text-center p-8">
-            <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-3" />
             <div className="text-slate-600 dark:text-slate-400 font-medium text-lg">Ready to Analyze</div>
             <p className="text-xs text-slate-500">Click &quot;Process&quot; in the upload menu to begin.</p>
           </div>
@@ -148,20 +147,32 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider">Raw Input</h3>
+                <h3 className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Raw Input</h3>
               </div>
-              <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-100 dark:bg-black aspect-square flex items-center justify-center">
+              <motion.div 
+                key={`raw-${activeItem.id}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-100 dark:bg-black aspect-square flex items-center justify-center"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={activeItem.previewUrl} alt="Raw" className="max-w-full max-h-full object-contain" />
-              </div>
+              </motion.div>
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider">Detections</h3>
+                <h3 className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Detections</h3>
               </div>
-              <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-100 dark:bg-black aspect-square flex items-center justify-center relative">
+              <motion.div 
+                key={`det-${activeItem.id}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-100 dark:bg-black aspect-square flex items-center justify-center relative"
+              >
                 <canvas ref={canvasRef} className="max-w-full max-h-full object-contain" />
-              </div>
+              </motion.div>
             </div>
           </div>
         )}
@@ -220,22 +231,34 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
                 <div className="space-y-2">
-                  {activeItem.data.report.map((entry: ReportEntry) => (
-                    <div key={entry.detection_id} className={`flex justify-between items-center px-4 py-2.5 rounded-lg border ${entry.flagged_for_review ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-500/20' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20'}`}>
+                  {activeItem.data.report.map((entry: ReportEntry, idx: number) => (
+                    <motion.div 
+                      key={`${activeItem.id}-${entry.detection_id}`}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: Math.min(idx * 0.05, 0.5) }}
+                      className={`flex justify-between items-center px-4 py-2.5 rounded-lg border ${entry.flagged_for_review ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-500/20' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20'}`}
+                    >
                       <div className="flex flex-col justify-center gap-1">
                         <p className="font-semibold text-sm text-slate-900 dark:text-slate-200 capitalize leading-none">{entry.image_class.replace(/_/g, ' ')}</p>
                         <span className="text-[10px] font-mono text-slate-500 leading-none">{entry.detection_id}</span>
                       </div>
                       <div className="text-xl font-semibold text-slate-800 dark:text-slate-100">{entry.confidence.toFixed(0)}<span className="text-sm text-slate-500 font-medium ml-0.5">%</span></div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-slate-500 text-sm border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 bg-slate-50 dark:bg-slate-900/30">
+                <motion.div 
+                  key={`empty-${activeItem.id}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full flex flex-col items-center justify-center text-slate-500 text-sm border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 bg-slate-50 dark:bg-slate-900/30"
+                >
                   <CheckCircle size={32} className="text-emerald-500/50 mb-3" />
                   <p className="font-medium text-slate-700 dark:text-slate-300">All Clear</p>
                   <p className="mt-1 text-center">No targets detected matching the anomaly threshold.</p>
-                </div>
+                </motion.div>
               )}
             </div>
           </div>

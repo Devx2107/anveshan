@@ -260,7 +260,7 @@ export default function Dashboard() {
                 <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-sm dark:shadow-none transition-colors">
                   <div className="flex items-center justify-between mb-4 h-8">
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 truncate pr-4">
-                      <ImageIcon size={20} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                      <ImageIcon size={20} className="text-cyan-600 dark:text-cyan-500 shrink-0" />
                       <span className="truncate">{activeItem.file.name}</span>
                     </h2>
 
