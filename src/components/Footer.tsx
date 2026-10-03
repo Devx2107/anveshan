@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="relative z-10 py-4 border-t border-slate-200 dark:border-slate-900 bg-transparent transition-colors">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
-        
+
         {/* Left: Copyright & Links */}
         <div className="flex flex-col items-center md:items-start gap-1.5">
           <p className="text-sm text-slate-500 font-sans text-center md:text-left">
@@ -25,12 +25,13 @@ export default function Footer() {
         </div>
 
         {/* Right: Social/Links */}
-        <a 
-          href="https://github.com/agrimgarg08/anveshan" 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        <a
+          href="https://github.com/agrimgarg08/anveshan"
+          target="_blank"
+          rel="noopener noreferrer"
           className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors duration-300"
           aria-label="GitHub Repository"
+          title="GitHub Repository"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -23,6 +23,9 @@ const yatraOne = Yatra_One({
 export const metadata: Metadata = {
   title: "Anveshan",
   description: "Marine Debris Detection System",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default function RootLayout({

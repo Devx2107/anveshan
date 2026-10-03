@@ -78,6 +78,31 @@ export default function Contact() {
             </a>
           </div>
         </div>
+
+        {/* Contact 3 */}
+        <div className="group border-b border-slate-200 dark:border-slate-800 py-10 transition-colors hover:border-cyan-500/50 border-b-transparent">
+          <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400 tracking-wider uppercase mb-2">Operations</p>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">Third Person</h2>
+
+          <div className="flex flex-col gap-6">
+            <a href="mailto:third@example.com" className="inline-flex items-center gap-4 text-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all w-fit group/link">
+              <Mail size={20} className="text-slate-400 group-hover/link:text-cyan-500 transition-colors" />
+              <span className="relative overflow-hidden">
+                third@example.com
+                <span className="absolute bottom-0 left-0 w-full h-[1px] bg-cyan-500 transform origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100"></span>
+              </span>
+              <ArrowUpRight size={16} className="opacity-0 -translate-x-2 translate-y-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 group-hover/link:translate-y-0 transition-all duration-300 text-cyan-500" />
+            </a>
+
+            <a href="tel:+911122334455" className="inline-flex items-center gap-4 text-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all w-fit group/link">
+              <Phone size={20} className="text-slate-400 group-hover/link:text-cyan-500 transition-colors" />
+              <span className="relative overflow-hidden">
+                +91 11223 34455
+                <span className="absolute bottom-0 left-0 w-full h-[1px] bg-cyan-500 transform origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100"></span>
+              </span>
+            </a>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
