@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Loader2, AlertTriangle, MapIcon, BarChart, CheckCircle, Navigation, Image as ImageIcon } from 'lucide-react';
 import { QueueItem, ReportEntry } from '@/types';
+import type { Map as LeafletMap } from 'leaflet';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -14,14 +15,12 @@ interface SingleViewProps {
   activeItem: QueueItem | undefined;
   mapTheme: string;
   cartoTileUrl: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  leafletLib: any;
+  leafletLib: typeof import('leaflet') | null;
 }
 
 export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leafletLib }: SingleViewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [map, setMap] = useState<any>(null);
+  const [map, setMap] = useState<LeafletMap | null>(null);
 
   useEffect(() => {
     if (!map) return;

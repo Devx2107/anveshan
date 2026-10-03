@@ -3,13 +3,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FileJson, FileSpreadsheet } from 'lucide-react';
-import { ViewMode } from '@/types';
+import { ViewMode, ReportEntry } from '@/types';
 
 interface TopControlsProps {
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  globalReport: any[];
+  globalReport: (ReportEntry & { source_file: string })[];
   downloadJson: () => void;
   downloadCsv: () => void;
   showTabs: boolean;

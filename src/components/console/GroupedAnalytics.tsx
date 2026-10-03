@@ -8,18 +8,19 @@ const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapCo
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const HeatmapLayer = dynamic(() => import('@/components/console/HeatmapLayer'), { ssr: false });
 
+import { ReportEntry } from '@/types';
+import type { Map as LeafletMap } from 'leaflet';
+
 interface GroupedAnalyticsProps {
   processedCount: number;
   totalQueue: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  globalReport: any[];
+  globalReport: (ReportEntry & { source_file: string })[];
   cartoTileUrl: string;
   mapTheme: string;
 }
 
 export default function GroupedAnalytics({ processedCount, totalQueue, globalReport, cartoTileUrl, mapTheme }: GroupedAnalyticsProps) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [map, setMap] = useState<any>(null);
+  const [map, setMap] = useState<LeafletMap | null>(null);
 
   useEffect(() => {
     if (!map) return;
@@ -73,10 +74,8 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
               <button
                 onClick={() => {
                   if (map && globalReport.length > 0) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const lats = globalReport.map((r: any) => r.latitude);
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const lons = globalReport.map((r: any) => r.longitude);
+                    const lats = globalReport.map((r) => r.latitude);
+                    const lons = globalReport.map((r) => r.longitude);
                     map.fitBounds([
                       [Math.min(...lats), Math.min(...lons)],
                       [Math.max(...lats), Math.max(...lons)]
@@ -96,18 +95,15 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
                 ref={setMap}
                 key={`global-map-${globalReport.length}`} 
                 bounds={[
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  [Math.min(...globalReport.map((r: any) => r.latitude)), Math.min(...globalReport.map((r: any) => r.longitude))],
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  [Math.max(...globalReport.map((r: any) => r.latitude)), Math.max(...globalReport.map((r: any) => r.longitude))]
+                  [Math.min(...globalReport.map((r) => r.latitude)), Math.min(...globalReport.map((r) => r.longitude))],
+                  [Math.max(...globalReport.map((r) => r.latitude)), Math.max(...globalReport.map((r) => r.longitude))]
                 ]} 
                 boundsOptions={{ padding: [50, 50], maxZoom: 4 }}
                 style={{ height: '100%', width: '100%', backgroundColor: 'transparent' }} 
                 className="z-0"
               >
                 <TileLayer key={mapTheme} url={cartoTileUrl} attribution='&copy; OpenStreetMap' />
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                <HeatmapLayer points={globalReport.map((entry: any) => [entry.latitude, entry.longitude, entry.confidence / 100])} />
+                <HeatmapLayer theme={mapTheme} points={globalReport.map((entry) => [entry.latitude, entry.longitude, entry.confidence / 100])} />
               </MapContainer>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm">No geographic data.</div>
@@ -123,8 +119,7 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
               <div className="space-y-3">
                 { }
                 {Object.entries(
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  globalReport.reduce((acc: Record<string, { count: number, flagged: number }>, curr: any) => {
+                  globalReport.reduce((acc: Record<string, { count: number, flagged: number }>, curr) => {
                     const cls = curr.image_class.replace(/_/g, ' ');
                     if (!acc[cls]) acc[cls] = { count: 0, flagged: 0 };
                     acc[cls].count++;

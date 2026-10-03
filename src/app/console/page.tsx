@@ -34,13 +34,12 @@ export default function Dashboard() {
   const [isQueueDrawerOpen, setIsQueueDrawerOpen] = useState(false);
 
   // Map icon fix for leaflet
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [leafletLib, setLeafletLib] = useState<any>(null);
+  const [leafletLib, setLeafletLib] = useState<typeof import('leaflet') | null>(null);
 
   useEffect(() => {
     import('leaflet').then((leaflet) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
+      // @ts-expect-error - Leaflet private API
+      delete (leaflet.Icon.Default.prototype)._getIconUrl;
       leaflet.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -67,8 +66,15 @@ export default function Dashboard() {
     const items = Array.from(e.dataTransfer.items);
     const files: File[] = [];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const traverseFileTree = async (item: any, path: string = '') => {
+    interface WebkitEntry {
+      isFile: boolean;
+      isDirectory: boolean;
+      name: string;
+      file: (cb: (file: File) => void) => void;
+      createReader: () => { readEntries: (cb: (entries: WebkitEntry[]) => void) => void };
+    }
+
+    const traverseFileTree = async (item: WebkitEntry, path: string = '') => {
       return new Promise<void>((resolve) => {
         if (item.isFile) {
           item.file((file: File) => {
@@ -77,8 +83,7 @@ export default function Dashboard() {
           });
         } else if (item.isDirectory) {
           const dirReader = item.createReader();
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          dirReader.readEntries(async (entries: any[]) => {
+          dirReader.readEntries(async (entries: WebkitEntry[]) => {
             for (const entry of entries) {
               await traverseFileTree(entry, path + item.name + '/');
             }
@@ -92,7 +97,7 @@ export default function Dashboard() {
 
     const traversePromises = items.map((item) => {
       if (item.kind === 'file') {
-        const entry = item.webkitGetAsEntry();
+        const entry = item.webkitGetAsEntry() as unknown as WebkitEntry;
         if (entry) {
           return traverseFileTree(entry);
         }

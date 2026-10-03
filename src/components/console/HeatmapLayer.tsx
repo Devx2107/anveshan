@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 
-export default function HeatmapLayer({ points }: { points: [number, number, number][] }) {
+export default function HeatmapLayer({ points, theme = 'light_all' }: { points: [number, number, number][], theme?: string }) {
   const map = useMap();
 
   useEffect(() => {
@@ -17,12 +17,17 @@ export default function HeatmapLayer({ points }: { points: [number, number, numb
       import('leaflet.heat').then(() => {
         if (!points || points.length === 0) return;
 
+        const isDark = theme === 'dark_all';
+        const gradient = isDark
+          ? { 0.2: '#312e81', 0.4: '#3b82f6', 0.6: '#10b981', 0.8: '#f59e0b', 1.0: '#ef4444' } // indigo -> blue -> emerald -> amber -> red
+          : { 0.1: 'blue', 0.3: 'cyan', 0.5: 'lime', 0.7: 'yellow', 1.0: 'red' };
+
         heatLayer = L.heatLayer(points, {
           radius: 20,
           blur: 15,
           maxZoom: 4,
           max: 8.0,
-          gradient: { 0.1: 'blue', 0.3: 'cyan', 0.5: 'lime', 0.7: 'yellow', 1.0: 'red' }
+          gradient
         }).addTo(map);
       });
     }
@@ -32,7 +37,7 @@ export default function HeatmapLayer({ points }: { points: [number, number, numb
         map.removeLayer(heatLayer);
       }
     };
-  }, [map, points]);
+  }, [map, points, theme]);
 
   return null;
 }
