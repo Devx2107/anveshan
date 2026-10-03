@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import { Map as MapIcon, BarChart, Navigation, Maximize, X } from 'lucide-react';
+import { Map as MapIcon, Target, Navigation, Maximize, X } from 'lucide-react';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -23,7 +23,12 @@ interface GroupedAnalyticsProps {
 export default function GroupedAnalytics({ processedCount, totalQueue, globalReport, cartoTileUrl, mapTheme }: GroupedAnalyticsProps) {
   const [map, setMap] = useState<LeafletMap | null>(null);
   const [isMapMaximized, setIsMapMaximized] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const controls = useAnimation();
+
+  const displayedReport = selectedCategories.length > 0
+    ? globalReport.filter(r => selectedCategories.includes(r.image_class.replace(/_/g, ' '))) 
+    : globalReport;
 
   const handleToggleMaximize = async () => {
     // 1. Fade out and slide up (like exit transition)
@@ -60,19 +65,44 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
   useEffect(() => {
     if (!map) return;
     map.scrollWheelZoom.disable();
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) map.scrollWheelZoom.enable();
     };
     const handleKeyUp = (e: KeyboardEvent) => {
       if (!e.ctrlKey && !e.metaKey) map.scrollWheelZoom.disable();
     };
+    const handleBlur = () => {
+      map.scrollWheelZoom.disable();
+    };
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (!map.scrollWheelZoom.enabled()) map.scrollWheelZoom.enable();
+      } else {
+        if (map.scrollWheelZoom.enabled()) map.scrollWheelZoom.disable();
+      }
+    };
+    
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('wheel', handleWheel, { capture: true });
+    
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('wheel', handleWheel, { capture: true });
     };
   }, [map]);
+
+  const toggleCategory = (className: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(className) 
+        ? prev.filter(c => c !== className)
+        : [...prev, className]
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -127,12 +157,12 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
                 <span className="text-xs font-normal text-slate-400 ml-2 hidden sm:inline">(Ctrl + Scroll to zoom)</span>
               </h2>
               <div className="flex items-center gap-2">
-                {globalReport && globalReport.length > 0 && (
+                {displayedReport && displayedReport.length > 0 && (
                   <button
                     onClick={() => {
-                      if (map && globalReport.length > 0) {
-                        const lats = globalReport.map((r) => r.latitude);
-                        const lons = globalReport.map((r) => r.longitude);
+                      if (map && displayedReport.length > 0) {
+                        const lats = displayedReport.map((r) => r.latitude);
+                        const lons = displayedReport.map((r) => r.longitude);
                         map.fitBounds([
                           [Math.min(...lats), Math.min(...lons)],
                           [Math.max(...lats), Math.max(...lons)]
@@ -155,23 +185,24 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
               </div>
             </div>
             <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative bg-slate-100 dark:bg-slate-900">
-              {globalReport.length > 0 ? (
+              {displayedReport.length > 0 ? (
                 <MapContainer 
                   ref={setMap}
                   key={`global-map-${globalReport.length}`} 
                   bounds={[
-                    [Math.min(...globalReport.map((r) => r.latitude)), Math.min(...globalReport.map((r) => r.longitude))],
-                    [Math.max(...globalReport.map((r) => r.latitude)), Math.max(...globalReport.map((r) => r.longitude))]
+                    [Math.min(...displayedReport.map((r) => r.latitude)), Math.min(...displayedReport.map((r) => r.longitude))],
+                    [Math.max(...displayedReport.map((r) => r.latitude)), Math.max(...displayedReport.map((r) => r.longitude))]
                   ]} 
                   boundsOptions={{ padding: [50, 50], maxZoom: 4 }}
                   style={{ height: '100%', width: '100%', backgroundColor: 'transparent' }} 
                   className="z-0"
+                  scrollWheelZoom={false}
                 >
                   <TileLayer key={mapTheme} url={cartoTileUrl} attribution='&copy; OpenStreetMap' />
-                  <HeatmapLayer key={`${mapTheme}-${isMapMaximized}`} theme={mapTheme} points={globalReport.map((entry) => [entry.latitude, entry.longitude, entry.confidence / 100])} />
+                  <HeatmapLayer key={`${mapTheme}-${isMapMaximized}-${selectedCategories.join('-')}`} theme={mapTheme} points={displayedReport.map((entry) => [entry.latitude, entry.longitude, entry.confidence / 100])} />
                 </MapContainer>
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm">No geographic data.</div>
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm">No geographic data for this selection.</div>
               )}
             </div>
           </motion.div>
@@ -179,8 +210,25 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
 
         {/* Global Ledger */}
         <div className="lg:col-span-1 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-900 dark:text-slate-100"><BarChart size={20} className="text-blue-500" /> Detections by Category</h2>
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="flex justify-between items-center mb-4 h-8">
+            <h2 className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+              <Target size={20} className="text-cyan-600 dark:text-cyan-500" /> Detections by Category
+            </h2>
+            <AnimatePresence>
+              {selectedCategories.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  onClick={() => setSelectedCategories([])} 
+                  className="text-xs font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded transition-colors whitespace-nowrap"
+                >
+                  Show All
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
             {globalReport.length > 0 ? (
               <div className="space-y-3">
                 <AnimatePresence mode="popLayout">
@@ -192,25 +240,41 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
                       if (curr.flagged_for_review) acc[cls].flagged++;
                       return acc;
                     }, {})
-                  ).sort((a, b) => b[1].count - a[1].count).map(([className, stats]) => (
+                  ).sort((a, b) => b[1].count - a[1].count).map(([className, stats]) => {
+                    const isSelected = selectedCategories.includes(className);
+                    const isOtherSelected = selectedCategories.length > 0 && !isSelected;
+                    return (
                     <motion.div 
                       key={className} 
                       layout
                       initial={{ opacity: 0, y: 10 }} 
-                      animate={{ opacity: 1, y: 0 }} 
+                      animate={{ opacity: isOtherSelected ? 0.4 : 1, y: 0 }} 
                       exit={{ opacity: 0, scale: 0.95 }} 
                       transition={{ duration: 0.2 }}
-                      className="flex justify-between items-center p-4 rounded-xl border bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700"
+                      onClick={() => toggleCategory(className)}
+                      className={`flex justify-between items-center pl-4 pr-2 py-3 rounded-xl border cursor-pointer transition-all ${
+                        isSelected 
+                          ? 'border-cyan-500 bg-cyan-50 dark:border-cyan-500/50 dark:bg-cyan-500/10 shadow-sm' 
+                          : 'border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 hover:border-cyan-300 dark:hover:border-cyan-700 hover:bg-white dark:hover:bg-slate-800'
+                      }`}
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm capitalize text-slate-900 dark:text-slate-200">{className}</p>
-                          {stats.flagged > 0 && <span className="text-[10px] bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded font-medium">{stats.flagged} Flagged</span>}
+                          <p className={`font-semibold text-sm capitalize transition-colors ${isSelected ? 'text-cyan-700 dark:text-cyan-300' : 'text-slate-900 dark:text-slate-200'}`}>{className}</p>
+                          {stats.flagged > 0 && (
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium transition-colors ${
+                              isSelected 
+                                ? 'bg-orange-500 text-white dark:bg-orange-500' 
+                                : 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400'
+                            }`}>
+                              {stats.flagged} Flagged
+                            </span>
+                          )}
                         </div>
                       </div>
-                      <div className="text-xl font-semibold text-slate-800 dark:text-slate-100">{stats.count}</div>
+                      <div className={`text-xl font-semibold transition-colors ${isSelected ? 'text-cyan-700 dark:text-cyan-300' : 'text-slate-800 dark:text-slate-100'}`}>{stats.count}</div>
                     </motion.div>
-                  ))}
+                  )})}
                 </AnimatePresence>
               </div>
             ) : (

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Loader2, AlertTriangle, MapIcon, BarChart, CheckCircle, Navigation, Image as ImageIcon } from 'lucide-react';
+import { Loader2, AlertTriangle, MapIcon, Target, CheckCircle, Navigation, Image as ImageIcon } from 'lucide-react';
 import { QueueItem, ReportEntry } from '@/types';
 import type { Map as LeafletMap } from 'leaflet';
 
@@ -25,17 +25,34 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
   useEffect(() => {
     if (!map) return;
     map.scrollWheelZoom.disable();
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) map.scrollWheelZoom.enable();
     };
     const handleKeyUp = (e: KeyboardEvent) => {
       if (!e.ctrlKey && !e.metaKey) map.scrollWheelZoom.disable();
     };
+    const handleBlur = () => {
+      map.scrollWheelZoom.disable();
+    };
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (!map.scrollWheelZoom.enabled()) map.scrollWheelZoom.enable();
+      } else {
+        if (map.scrollWheelZoom.enabled()) map.scrollWheelZoom.disable();
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('wheel', handleWheel, { capture: true });
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('wheel', handleWheel, { capture: true });
     };
   }, [map]);
 
@@ -177,7 +194,7 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
             </div>
             <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative bg-slate-100 dark:bg-slate-900">
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
-                <MapContainer ref={setMap} key={`map-${activeItem.id}`} center={[activeItem.data.report[0].latitude, activeItem.data.report[0].longitude]} zoom={4} style={{ height: '100%', minHeight: '300px', width: '100%', backgroundColor: 'transparent' }} className="z-0">
+                <MapContainer ref={setMap} key={`map-${activeItem.id}`} center={[activeItem.data.report[0].latitude, activeItem.data.report[0].longitude]} zoom={4} style={{ height: '100%', minHeight: '300px', width: '100%', backgroundColor: 'transparent' }} className="z-0" scrollWheelZoom={false}>
                   <TileLayer key={mapTheme} url={cartoTileUrl} attribution='&copy; OpenStreetMap' />
                   {activeItem.data.report.map((entry: ReportEntry) => {
                     const iconHtml = entry.flagged_for_review
@@ -199,7 +216,7 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
 
           {/* Ledger */}
           <div className="lg:col-span-1 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col h-[400px]">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-900 dark:text-slate-100"><BarChart size={20} className="text-blue-500" /> Detection Ledger</h2>
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-900 dark:text-slate-100"><Target size={20} className="text-cyan-600 dark:text-cyan-500" /> Detection Ledger</h2>
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
                 <div className="space-y-2">
