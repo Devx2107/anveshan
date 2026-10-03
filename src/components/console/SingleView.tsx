@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Loader2, AlertTriangle, MapIcon, BarChart, CheckCircle, LocateFixed } from 'lucide-react';
+import { Loader2, AlertTriangle, MapIcon, BarChart, CheckCircle, Navigation, Image as ImageIcon } from 'lucide-react';
 import { QueueItem } from '@/types';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -22,6 +22,23 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [map, setMap] = useState<any>(null);
+
+  useEffect(() => {
+    if (!map) return;
+    map.scrollWheelZoom.disable();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) map.scrollWheelZoom.enable();
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (!e.ctrlKey && !e.metaKey) map.scrollWheelZoom.disable();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [map]);
 
   useEffect(() => {
     if (activeItem && canvasRef.current) {
@@ -62,7 +79,7 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
             ctx.strokeRect(x, y, w, h);
             ctx.setLineDash([]);
             ctx.fillStyle = ctx.strokeStyle;
-            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.font = 'bold 13px "Plus Jakarta Sans", sans-serif';
             const label = `${d.image_class?.replace(/_/g, ' ') || 'Unknown'} ${d.confidence?.toFixed(0) || 0}%`;
             const textMetrics = ctx.measureText(label);
             ctx.fillRect(x, Math.max(0, y - 24), textMetrics.width + 12, 24);
@@ -79,9 +96,9 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
   if (!activeItem) {
     return (
       <div className="aspect-[21/9] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 text-center p-8">
-        <Loader2 className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-3" />
+        <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-3" />
         <div className="text-slate-600 dark:text-slate-400 font-medium text-lg">No Selection</div>
-        <p className="text-xs text-slate-500">Click &quot;Start Batch Processing&quot; to begin.</p>
+        <p className="text-xs text-slate-500">Click &quot;Process&quot; in the upload menu to begin.</p>
       </div>
     );
   }
@@ -91,9 +108,9 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
       <div className="bg-white/80 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-sm">
         {activeItem.status === 'pending' && (
           <div className="aspect-[21/9] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 text-center p-8">
-            <Loader2 className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-3" />
+            <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-3" />
             <div className="text-slate-600 dark:text-slate-400 font-medium text-lg">Ready to Analyze</div>
-            <p className="text-xs text-slate-500">Click &quot;Start Batch Processing&quot; to begin.</p>
+            <p className="text-xs text-slate-500">Click &quot;Process&quot; in the upload menu to begin.</p>
           </div>
         )}
 
@@ -137,12 +154,13 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
 
       {/* Meta Info (Map + Ledger) */}
       {activeItem.status === 'done' && activeItem.data && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Map View */}
-          <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col h-[400px]">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                <MapIcon size={18} className="text-emerald-500" /> Geolocation
+          <div className="lg:col-span-2 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col h-[400px]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <MapIcon size={20} className="text-emerald-500" /> Geolocation
+                <span className="text-xs font-normal text-slate-400 ml-2 hidden sm:inline">(Ctrl + Scroll to zoom)</span>
               </h2>
               {activeItem.data.report && activeItem.data.report.length > 0 && (
                 <button
@@ -152,16 +170,16 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
                       map.setView([report[0].latitude, report[0].longitude], 4);
                     }
                   }}
-                  className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                  className="p-1.5 flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
                   title="Recenter Map"
                 >
-                  <LocateFixed size={16} />
+                  <Navigation size={16} className="-ml-[1px] mt-[1px]" />
                 </button>
               )}
             </div>
-            <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative">
+            <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative bg-slate-100 dark:bg-slate-900">
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
-                <MapContainer ref={setMap} key={`map-${activeItem.id}`} center={[activeItem.data.report[0].latitude, activeItem.data.report[0].longitude]} zoom={4} style={{ height: '100%', minHeight: '300px', width: '100%' }} className="z-0">
+                <MapContainer ref={setMap} key={`map-${activeItem.id}`} center={[activeItem.data.report[0].latitude, activeItem.data.report[0].longitude]} zoom={4} style={{ height: '100%', minHeight: '300px', width: '100%', backgroundColor: 'transparent' }} className="z-0">
                   <TileLayer key={mapTheme} url={cartoTileUrl} attribution='&copy; OpenStreetMap' />
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {activeItem.data.report.map((entry: any) => {
@@ -183,19 +201,19 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
           </div>
 
           {/* Ledger */}
-          <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col h-[400px]">
-            <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-slate-900 dark:text-slate-100"><BarChart size={18} className="text-blue-500" /> Detection Ledger</h2>
+          <div className="lg:col-span-1 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col h-[400px]">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-900 dark:text-slate-100"><BarChart size={20} className="text-blue-500" /> Detection Ledger</h2>
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
                 <div className="space-y-2">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {activeItem.data.report.map((entry: any) => (
                     <div key={entry.detection_id} className={`flex justify-between items-center px-4 py-2.5 rounded-lg border ${entry.flagged_for_review ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-500/20' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20'}`}>
-                      <div>
-                        <p className="font-medium text-sm text-slate-900 dark:text-slate-200 capitalize">{entry.image_class.replace(/_/g, ' ')}</p>
+                      <div className="flex flex-col justify-center gap-1">
+                        <p className="font-semibold text-sm text-slate-900 dark:text-slate-200 capitalize leading-none">{entry.image_class.replace(/_/g, ' ')}</p>
                         <span className="text-[10px] font-mono text-slate-500 leading-none">{entry.detection_id}</span>
                       </div>
-                      <div className="font-mono text-lg font-semibold text-slate-800 dark:text-slate-100">{entry.confidence.toFixed(0)}<span className="text-xs text-slate-500 font-normal">%</span></div>
+                      <div className="text-xl font-semibold text-slate-800 dark:text-slate-100">{entry.confidence.toFixed(0)}<span className="text-sm text-slate-500 font-medium ml-0.5">%</span></div>
                     </div>
                   ))}
                 </div>

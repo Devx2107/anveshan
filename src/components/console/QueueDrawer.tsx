@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, Clock, Loader2, Trash2, X, List } from 'lucide-react';
 import { QueueItem, ViewMode } from '@/types';
@@ -28,6 +28,14 @@ export default function QueueDrawer({
   isOpen,
   setIsOpen
 }: QueueDrawerProps) {
+  const [filter, setFilter] = useState<'all' | 'done' | 'error'>('all');
+  const errorCount = queue.filter(q => q.status === 'error').length;
+  
+  const filteredQueue = queue.map((q, originalIdx) => ({ ...q, originalIdx })).filter(q => {
+    if (filter === 'all') return true;
+    return q.status === filter;
+  });
+
   return (
     <>
 
@@ -60,29 +68,48 @@ export default function QueueDrawer({
           </button>
         )}
 
-        <div className="flex items-center justify-between px-5 mb-6 shrink-0 mt-2">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-wide flex items-center gap-3">
+        <div className="px-5 mb-6 shrink-0 mt-2 space-y-3">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-wide">
             File Queue
-            <div className="flex items-center gap-2 normal-case tracking-normal font-medium text-xs">
-              <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm">Total: {queue.length}</span>
-              <span className="bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 shadow-sm">Done: {processedCount}</span>
-            </div>
           </h3>
+          <div className="flex items-center gap-2 font-medium text-xs">
+            <button 
+              onClick={() => setFilter('all')}
+              className={`px-2 py-1.5 rounded-lg border shadow-sm flex-1 text-center transition-all ${filter === 'all' ? 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 border-slate-300 dark:border-slate-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+            >
+              Total: {queue.length}
+            </button>
+            <button 
+              onClick={() => setFilter(filter === 'done' ? 'all' : 'done')}
+              className={`px-2 py-1.5 rounded-lg border shadow-sm flex-1 text-center transition-all ${filter === 'done' ? 'bg-emerald-100 dark:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/50' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20'}`}
+            >
+              Done: {processedCount}
+            </button>
+            <button 
+              onClick={() => setFilter(filter === 'error' ? 'all' : 'error')}
+              className={`px-2 py-1.5 rounded-lg border shadow-sm flex-1 text-center transition-all ${filter === 'error' ? 'bg-red-100 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-500/50' : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-100 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20'}`}
+            >
+              Failed: {errorCount}
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-y-contain space-y-2 px-5 custom-scrollbar">
+          {filteredQueue.length === 0 && queue.length > 0 && (
+            <div className="text-sm text-slate-500 text-center mt-10 border-2 border-dashed border-slate-200 dark:border-slate-800 p-8 rounded-xl">No files in this state</div>
+          )}
           {queue.length === 0 && (
             <div className="text-sm text-slate-500 text-center mt-10 border-2 border-dashed border-slate-200 dark:border-slate-800 p-8 rounded-xl">Queue is empty</div>
           )}
-          {queue.map((qItem, idx) => {
-            const isSelected = activeViewIndex === idx;
+          {filteredQueue.map((qItem) => {
+            const isSelected = activeViewIndex === qItem.originalIdx;
 
             return (
               <div
                 role="button"
                 key={qItem.id}
                 onClick={() => {
-                  setActiveViewIndex(idx);
+                  setActiveViewIndex(qItem.originalIdx);
                   setViewMode('single');
                 }}
                 className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all 

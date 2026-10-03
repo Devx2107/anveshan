@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Map as MapIcon, BarChart, LocateFixed } from 'lucide-react';
+import { Map as MapIcon, BarChart, Navigation } from 'lucide-react';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -20,6 +20,23 @@ interface GroupedAnalyticsProps {
 export default function GroupedAnalytics({ processedCount, totalQueue, globalReport, cartoTileUrl, mapTheme }: GroupedAnalyticsProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [map, setMap] = useState<any>(null);
+
+  useEffect(() => {
+    if (!map) return;
+    map.scrollWheelZoom.disable();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) map.scrollWheelZoom.enable();
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (!e.ctrlKey && !e.metaKey) map.scrollWheelZoom.disable();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [map]);
 
   return (
     <div className="space-y-6">
@@ -44,12 +61,13 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Global Map */}
-        <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm">
+        <div className="lg:col-span-2 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-slate-100">
               <MapIcon size={20} className="text-emerald-500" /> Global Heatmap
+              <span className="text-xs font-normal text-slate-400 ml-2 hidden sm:inline">(Ctrl + Scroll to zoom)</span>
             </h2>
             {globalReport && globalReport.length > 0 && (
               <button
@@ -65,14 +83,14 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
                     ], { padding: [50, 50], maxZoom: 4 });
                   }
                 }}
-                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                className="p-1.5 flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
                 title="Recenter Map"
               >
-                <LocateFixed size={16} />
+                <Navigation size={16} className="-ml-[1px] mt-[1px]" />
               </button>
             )}
           </div>
-          <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative">
+          <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative bg-slate-100 dark:bg-slate-900">
             {globalReport.length > 0 ? (
               <MapContainer 
                 ref={setMap}
@@ -84,7 +102,7 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
                   [Math.max(...globalReport.map((r: any) => r.latitude)), Math.max(...globalReport.map((r: any) => r.longitude))]
                 ]} 
                 boundsOptions={{ padding: [50, 50], maxZoom: 4 }}
-                style={{ height: '100%', width: '100%' }} 
+                style={{ height: '100%', width: '100%', backgroundColor: 'transparent' }} 
                 className="z-0"
               >
                 <TileLayer key={mapTheme} url={cartoTileUrl} attribution='&copy; OpenStreetMap' />
@@ -98,7 +116,7 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
         </div>
 
         {/* Global Ledger */}
-        <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm">
+        <div className="lg:col-span-1 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-900 dark:text-slate-100"><BarChart size={20} className="text-blue-500" /> Detections by Category</h2>
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
             {globalReport.length > 0 ? (
@@ -121,7 +139,7 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
                         {stats.flagged > 0 && <span className="text-[10px] bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded font-medium">{stats.flagged} Flagged</span>}
                       </div>
                     </div>
-                    <div className="font-mono text-xl font-semibold text-slate-800 dark:text-slate-100">{stats.count}</div>
+                    <div className="text-xl font-semibold text-slate-800 dark:text-slate-100">{stats.count}</div>
                   </div>
                 ))}
               </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UploadCloud, FolderArchive, Play, Loader2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { UploadCloud, FolderArchive, Play, Loader2, Trash2, ChevronUp } from 'lucide-react';
 import { QueueItem } from '@/types';
 
 interface UploadWidgetProps {
@@ -49,6 +49,7 @@ export default function UploadWidget({
   // Auto expand when dragging files over the window
   useEffect(() => {
     if (isDragging) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsExpanded(true);
     }
   }, [isDragging]);
@@ -74,13 +75,13 @@ export default function UploadWidget({
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="px-3 pt-3 pb-0 border-b border-slate-100 dark:border-slate-800 relative z-0"
+              className="px-3 pt-3 pb-0 relative z-0"
             >
               {/* Drag and drop area */}
               <div
                 role="button"
                 className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-[20px] p-8 text-center transition-all duration-200
-                  ${isDragging ? 'border-cyan-500 bg-cyan-50 dark:border-cyan-400 dark:bg-cyan-400/5' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+                  ${isDragging ? 'border-cyan-500 bg-cyan-50 dark:border-cyan-400 dark:bg-cyan-400/5' : 'border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
               >
                 <input
                   id="file-upload"
@@ -126,13 +127,16 @@ export default function UploadWidget({
         <div className="flex items-center justify-between p-2 gap-2 h-[64px] relative z-10 bg-white/50 dark:bg-slate-900/50">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-3 pl-1 pr-4 h-full rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-200 font-semibold text-sm flex-1"
+            className="flex items-center gap-3 pl-2 pr-4 h-full rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-200 font-semibold text-sm flex-1"
           >
-            <div className="bg-cyan-50 dark:bg-cyan-500/10 w-10 h-10 flex items-center justify-center rounded-full shrink-0">
-              <UploadCloud size={20} className="text-cyan-600 dark:text-cyan-400" /> 
+            <div className="bg-cyan-50 dark:bg-cyan-500/10 w-8 h-8 flex items-center justify-center rounded-full shrink-0">
+              <UploadCloud size={16} className="text-cyan-600 dark:text-cyan-400" /> 
             </div>
             <span>Upload Data</span>
-            {isExpanded ? <ChevronDown size={16} className="ml-auto text-slate-400" /> : <ChevronUp size={16} className="ml-auto text-slate-400" />}
+            <ChevronUp 
+              size={16} 
+              className={`ml-auto text-slate-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
+            />
           </button>
 
           {hasFiles && !isProcessing && (

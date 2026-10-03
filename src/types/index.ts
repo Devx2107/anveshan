@@ -14,7 +14,7 @@ export interface ReportData {
   message?: string;
   cleaned_image?: string; // base64 string
   detections?: Detection[];
-  report?: any[];
+  report?: unknown[];
   metadata?: {
     total_detections: number;
     flagged_detections: number;

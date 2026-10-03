@@ -31,6 +31,7 @@ export default function Navbar() {
   // Force scroll to top on route change to fix intermittent scrolling bugs with Framer Motion
   useEffect(() => {
     window.scrollTo(0, 0);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobileMenuOpen(false);
   }, [pathname]);
 

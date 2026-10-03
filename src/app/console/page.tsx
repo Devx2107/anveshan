@@ -212,10 +212,11 @@ export default function Dashboard() {
       <motion.main 
         initial={false}
         animate={{ 
-          paddingLeft: isQueueDrawerOpen ? 320 : 0 
+          paddingLeft: isQueueDrawerOpen ? 320 + 24 : 24,
+          paddingRight: 24
         }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="flex-1 w-full flex flex-col pt-0 pb-20 md:pb-32 px-6 relative z-10"
+        className="flex-1 w-full flex flex-col pt-0 pb-20 md:pb-32 relative z-10"
       >
         <div className="max-w-[1200px] w-full mx-auto flex flex-col">
           <TopControls 
