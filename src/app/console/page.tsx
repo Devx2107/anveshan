@@ -248,24 +248,26 @@ export default function Dashboard() {
               <div className="space-y-6">
                 {/* Viewer */}
                 <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-sm dark:shadow-none transition-colors">
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center justify-between mb-4 h-8">
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 truncate pr-4">
                       <ImageIcon size={20} className="text-blue-600 dark:text-blue-400 shrink-0" />
                       <span className="truncate">{activeItem.file.name}</span>
                     </h2>
 
                     {/* Pagination Controls */}
-                    <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-lg shrink-0 border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg shrink-0 border border-slate-200 dark:border-slate-700">
                       <button
                         disabled={activeViewIndex === 0}
                         onClick={() => setActiveViewIndex(prev => prev - 1)}
-                        className="p-1.5 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed"
+                        className="p-1 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed"
+                        title="Previous Image"
                       ><ChevronLeft size={16} /></button>
-                      <span className="text-sm font-medium px-2 min-w-[60px] text-center text-slate-700 dark:text-slate-300">{activeViewIndex + 1} / {queue.length}</span>
+                      <span className="text-xs font-medium px-2 min-w-[40px] text-center text-slate-700 dark:text-slate-300" title="Current Image">{activeViewIndex + 1} / {queue.length}</span>
                       <button
                         disabled={activeViewIndex === queue.length - 1}
                         onClick={() => setActiveViewIndex(prev => prev + 1)}
-                        className="p-1.5 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed"
+                        className="p-1 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed"
+                        title="Next Image"
                       ><ChevronRight size={16} /></button>
                     </div>
                   </div>

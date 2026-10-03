@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Loader2, AlertTriangle, MapIcon, BarChart, CheckCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, MapIcon, BarChart, CheckCircle, LocateFixed } from 'lucide-react';
 import { QueueItem } from '@/types';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -20,6 +20,8 @@ interface SingleViewProps {
 
 export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leafletLib }: SingleViewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [map, setMap] = useState<any>(null);
 
   useEffect(() => {
     if (activeItem && canvasRef.current) {
@@ -44,8 +46,9 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
         if (activeData.report) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           activeData.report.forEach((d: any) => {
-            if (!d.bbox) return; // safety check
-            const [x, y, w, h] = d.bbox;
+            const bbox = d.bbox || d.bbox_px;
+            if (!bbox) return; // safety check
+            const [x, y, w, h] = bbox;
             const flagged = d.flagged_for_review;
 
             ctx.strokeStyle = flagged ? '#f97316' : '#10b981';
@@ -136,11 +139,28 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
       {activeItem.status === 'done' && activeItem.data && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Map View */}
-          <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col min-h-[400px]">
-            <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-slate-900 dark:text-slate-100"><MapIcon size={18} className="text-emerald-500" /> Geolocation</h2>
+          <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col h-[400px]">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-semibold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <MapIcon size={18} className="text-emerald-500" /> Geolocation
+              </h2>
+              {activeItem.data.report && activeItem.data.report.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (map) {
+                      map.setView([activeItem.data.report[0].latitude, activeItem.data.report[0].longitude], 4);
+                    }
+                  }}
+                  className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                  title="Recenter Map"
+                >
+                  <LocateFixed size={16} />
+                </button>
+              )}
+            </div>
             <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative">
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
-                <MapContainer key={`map-${activeItem.id}`} center={[activeItem.data.report[0].latitude, activeItem.data.report[0].longitude]} zoom={4} style={{ height: '100%', minHeight: '300px', width: '100%' }} className="z-0">
+                <MapContainer ref={setMap} key={`map-${activeItem.id}`} center={[activeItem.data.report[0].latitude, activeItem.data.report[0].longitude]} zoom={4} style={{ height: '100%', minHeight: '300px', width: '100%' }} className="z-0">
                   <TileLayer key={mapTheme} url={cartoTileUrl} attribution='&copy; OpenStreetMap' />
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {activeItem.data.report.map((entry: any) => {
@@ -162,19 +182,19 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
           </div>
 
           {/* Ledger */}
-          <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col min-h-[400px]">
+          <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col h-[400px]">
             <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-slate-900 dark:text-slate-100"><BarChart size={18} className="text-blue-500" /> Detection Ledger</h2>
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {activeItem.data.report.map((entry: any) => (
-                    <div key={entry.detection_id} className={`flex justify-between items-center p-4 rounded-xl border ${entry.flagged_for_review ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-500/20' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20'}`}>
+                    <div key={entry.detection_id} className={`flex justify-between items-center px-4 py-2.5 rounded-lg border ${entry.flagged_for_review ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-500/20' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20'}`}>
                       <div>
-                        <p className="font-semibold text-slate-900 dark:text-slate-200 capitalize">{entry.image_class.replace(/_/g, ' ')}</p>
-                        <span className="text-[10px] font-mono text-slate-500">{entry.detection_id}</span>
+                        <p className="font-medium text-sm text-slate-900 dark:text-slate-200 capitalize">{entry.image_class.replace(/_/g, ' ')}</p>
+                        <span className="text-[10px] font-mono text-slate-500 leading-none">{entry.detection_id}</span>
                       </div>
-                      <div className="font-mono text-xl text-slate-800 dark:text-slate-100">{entry.confidence.toFixed(0)}<span className="text-sm text-slate-500">%</span></div>
+                      <div className="font-mono text-lg font-semibold text-slate-800 dark:text-slate-100">{entry.confidence.toFixed(0)}<span className="text-xs text-slate-500 font-normal">%</span></div>
                     </div>
                   ))}
                 </div>

@@ -50,7 +50,7 @@ export default function RootLayout({
             <Footer />
           </AuthProvider>
         </ThemeProvider>
-        <Toaster position="bottom-right" toastOptions={{ className: "font-sans" }} />
+        <Toaster position="bottom-right" toastOptions={{ className: "font-sans" }} closeButton />
       </body>
     </html>
   );

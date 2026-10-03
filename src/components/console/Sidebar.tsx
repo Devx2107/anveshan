@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { UploadCloud, FolderArchive, Play, Loader2, CheckCircle, Trash2, XCircle, Download, FileJson, FileSpreadsheet } from 'lucide-react';
+import { UploadCloud, FolderArchive, Play, Loader2, CheckCircle, Trash2, XCircle, Download, FileJson, FileSpreadsheet, Clock } from 'lucide-react';
 import { QueueItem, ViewMode } from '@/types';
 
 interface SidebarProps {
@@ -53,7 +53,7 @@ export default function Sidebar({
             <UploadCloud size={20} className="text-cyan-600 dark:text-cyan-400" /> Upload Files
           </h2>
           {queue.length > 0 && processingStatus !== 'processing' && (
-            <button onClick={handleClear} className="p-2 bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors" title="Clear All">
+            <button onClick={handleClear} className="p-2 bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors" title="Clear All Files">
               <Trash2 size={16} />
             </button>
           )}
@@ -179,7 +179,7 @@ export default function Sidebar({
               <span className="bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded text-emerald-600 dark:text-emerald-400">Done: {processedCount}</span>
             </div>
           </h3>
-          <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-1">
+          <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
             {queue.map((qItem, idx) => {
               const isSelected = activeViewIndex === idx && viewMode === 'single';
 
@@ -199,14 +199,13 @@ export default function Sidebar({
                     <img src={qItem.previewUrl} alt="thumb" className="w-full h-full object-cover" />
                     {qItem.status === 'processing' && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><Loader2 size={14} className="animate-spin text-white" /></div>}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex items-center">
                     <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">{qItem.file.name}</p>
-                    <p className={`text-[10px] ${qItem.status === 'error' ? 'text-red-500' : 'text-slate-500'}`}>
-                      {qItem.status === 'done' ? 'Processed' : qItem.status === 'processing' ? 'Processing...' : qItem.status === 'error' ? 'Failed' : 'Pending'}
-                    </p>
                   </div>
-                  {qItem.status === 'done' && <CheckCircle size={14} className="text-emerald-500 shrink-0" />}
-                  {qItem.status === 'error' && <XCircle size={14} className="text-red-500 shrink-0" />}
+                  {qItem.status === 'done' && <CheckCircle size={14} className="text-emerald-500 shrink-0" title="Processed" />}
+                  {qItem.status === 'error' && <XCircle size={14} className="text-red-500 shrink-0" title="Failed" />}
+                  {qItem.status === 'pending' && <Clock size={14} className="text-slate-400 shrink-0" title="Pending" />}
+                  {qItem.status === 'processing' && <Loader2 size={14} className="animate-spin text-cyan-500 shrink-0" title="Processing" />}
                   {processingStatus !== 'processing' && (
                     <button
                       onClick={(e) => handleRemoveQueueItem(qItem.id, e)}
@@ -226,7 +225,7 @@ export default function Sidebar({
       {globalReport.length > 0 && (
         <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 backdrop-blur-sm shadow-sm dark:shadow-none transition-colors shrink-0">
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2 uppercase tracking-wider">
-            <Download size={16} className="text-indigo-600 dark:text-indigo-400" /> Export Global Reports
+            Export Global Reports
           </h2>
           <div className="flex gap-2">
             <button onClick={downloadJson} className="flex-1 flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 transition font-medium text-slate-700 dark:text-slate-200">
