@@ -22,11 +22,15 @@ export default function HeatmapLayer({ points, theme = 'light_all' }: { points: 
           ? { 0.2: '#312e81', 0.4: '#3b82f6', 0.6: '#10b981', 0.8: '#f59e0b', 1.0: '#ef4444' } // indigo -> blue -> emerald -> amber -> red
           : { 0.1: 'blue', 0.3: 'cyan', 0.5: 'lime', 0.7: 'yellow', 1.0: 'red' };
 
+        // Dynamically scale max intensity based on total points
+        // Sparse points (e.g. 1-2) get a lower max so they pop, dense points cap at 8.0
+        const dynamicMax = Math.max(1.2, Math.min(8.0, points.length / 3));
+
         heatLayer = L.heatLayer(points, {
           radius: 20,
           blur: 15,
           maxZoom: 4,
-          max: 8.0,
+          max: dynamicMax,
           gradient
         }).addTo(map);
       });
