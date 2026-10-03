@@ -44,7 +44,7 @@ export default function RootLayout({
           </div>
           <AuthProvider>
             <Navbar />
-            <div className="flex-1 flex flex-col relative z-0">
+            <div className="flex-1 flex flex-col relative">
               {children}
             </div>
             <Footer />

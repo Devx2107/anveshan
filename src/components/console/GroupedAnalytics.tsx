@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Map as MapIcon, BarChart } from 'lucide-react';
+import { Map as MapIcon, BarChart, LocateFixed } from 'lucide-react';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -18,6 +18,9 @@ interface GroupedAnalyticsProps {
 }
 
 export default function GroupedAnalytics({ processedCount, totalQueue, globalReport, cartoTileUrl, mapTheme }: GroupedAnalyticsProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [map, setMap] = useState<any>(null);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -44,10 +47,35 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Global Map */}
         <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-900 dark:text-slate-100"><MapIcon size={20} className="text-emerald-500" /> Global Heatmap</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+              <MapIcon size={20} className="text-emerald-500" /> Global Heatmap
+            </h2>
+            {globalReport && globalReport.length > 0 && (
+              <button
+                onClick={() => {
+                  if (map && globalReport.length > 0) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const lats = globalReport.map((r: any) => r.latitude);
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const lons = globalReport.map((r: any) => r.longitude);
+                    map.fitBounds([
+                      [Math.min(...lats), Math.min(...lons)],
+                      [Math.max(...lats), Math.max(...lons)]
+                    ], { padding: [50, 50], maxZoom: 4 });
+                  }
+                }}
+                className="p-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                title="Recenter Map"
+              >
+                <LocateFixed size={16} />
+              </button>
+            )}
+          </div>
           <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative">
             {globalReport.length > 0 ? (
               <MapContainer 
+                ref={setMap}
                 key={`global-map-${globalReport.length}`} 
                 bounds={[
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
