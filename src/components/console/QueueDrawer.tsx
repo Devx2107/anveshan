@@ -95,50 +95,74 @@ export default function QueueDrawer({
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-y-contain space-y-2 px-5 custom-scrollbar">
-          {filteredQueue.length === 0 && queue.length > 0 && (
-            <div className="text-sm text-slate-500 text-center mt-10 border-2 border-dashed border-slate-200 dark:border-slate-800 p-8 rounded-xl">No files in this state</div>
-          )}
-          {queue.length === 0 && (
-            <div className="text-sm text-slate-500 text-center mt-10 border-2 border-dashed border-slate-200 dark:border-slate-800 p-8 rounded-xl">Queue is empty</div>
-          )}
-          {filteredQueue.map((qItem) => {
-            const isSelected = activeViewIndex === qItem.originalIdx;
-
-            return (
-              <div
-                role="button"
-                key={qItem.id}
-                onClick={() => {
-                  setActiveViewIndex(qItem.originalIdx);
-                  setViewMode('single');
-                }}
-                className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all 
-                                ${isSelected ? 'border-cyan-500 bg-cyan-50 dark:border-cyan-500/50 dark:bg-cyan-500/10 shadow-sm' : 'border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 hover:border-cyan-300 dark:hover:border-cyan-700 hover:bg-white dark:hover:bg-slate-800'}`}
+          <AnimatePresence mode="popLayout">
+            {filteredQueue.length === 0 && queue.length > 0 && (
+              <motion.div 
+                key="empty-filtered"
+                layout
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}
+                className="text-sm text-slate-500 text-center mt-10 border-2 border-dashed border-slate-200 dark:border-slate-800 p-8 rounded-xl"
               >
-                <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative border border-slate-200 dark:border-slate-700">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={qItem.previewUrl} alt="thumb" className="w-full h-full object-cover" />
-                  {qItem.status === 'processing' && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><Loader2 size={16} className="animate-spin text-white" /></div>}
-                </div>
-                <div className="flex-1 min-w-0 flex flex-col justify-center">
-                  <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">{qItem.file.name}</p>
-                </div>
-                {qItem.status === 'done' && <span title="Processed" className="shrink-0 flex items-center"><CheckCircle size={16} className="text-emerald-500" /></span>}
-                {qItem.status === 'error' && <span title="Failed" className="shrink-0 flex items-center"><XCircle size={16} className="text-red-500" /></span>}
-                {qItem.status === 'pending' && <span title="Pending" className="shrink-0 flex items-center"><Clock size={16} className="text-slate-400" /></span>}
-                {qItem.status === 'processing' && <span title="Processing" className="shrink-0 flex items-center"><Loader2 size={16} className="animate-spin text-cyan-500" /></span>}
-                {processingStatus !== 'processing' && (
-                  <button
-                    onClick={(e) => handleRemoveQueueItem(qItem.id, e)}
-                    className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors shrink-0"
-                    title="Remove file"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                )}
-              </div>
-            )
-          })}
+                No files in this state
+              </motion.div>
+            )}
+            {queue.length === 0 && (
+              <motion.div 
+                key="empty-queue"
+                layout
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}
+                className="text-sm text-slate-500 text-center mt-10 border-2 border-dashed border-slate-200 dark:border-slate-800 p-8 rounded-xl"
+              >
+                Queue is empty
+              </motion.div>
+            )}
+            {filteredQueue.map((qItem) => {
+              const isSelected = activeViewIndex === qItem.originalIdx;
+
+              return (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  role="button"
+                  key={qItem.id}
+                  onClick={() => {
+                    setActiveViewIndex(qItem.originalIdx);
+                    setViewMode('single');
+                  }}
+                  className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all 
+                                  ${isSelected ? 'border-cyan-500 bg-cyan-50 dark:border-cyan-500/50 dark:bg-cyan-500/10 shadow-sm' : 'border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 hover:border-cyan-300 dark:hover:border-cyan-700 hover:bg-white dark:hover:bg-slate-800'}`}
+                >
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative border border-slate-200 dark:border-slate-700">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={qItem.previewUrl} alt="thumb" className="w-full h-full object-cover" />
+                    {qItem.status === 'processing' && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><Loader2 size={16} className="animate-spin text-white" /></div>}
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">{qItem.file.name}</p>
+                  </div>
+                  {qItem.status === 'done' && <span title="Processed" className="shrink-0 flex items-center"><CheckCircle size={16} className="text-emerald-500" /></span>}
+                  {qItem.status === 'error' && <span title="Failed" className="shrink-0 flex items-center"><XCircle size={16} className="text-red-500" /></span>}
+                  {qItem.status === 'pending' && <span title="Pending" className="shrink-0 flex items-center"><Clock size={16} className="text-slate-400" /></span>}
+                  {qItem.status === 'processing' && <span title="Processing" className="shrink-0 flex items-center"><Loader2 size={16} className="animate-spin text-cyan-500" /></span>}
+                  {processingStatus !== 'processing' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveQueueItem(qItem.id, e);
+                      }}
+                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors shrink-0"
+                      title="Remove file"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
         </div>
       </motion.div>
     </>

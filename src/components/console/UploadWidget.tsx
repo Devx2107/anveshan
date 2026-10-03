@@ -139,47 +139,63 @@ export default function UploadWidget({
             />
           </button>
 
-          {hasFiles && !isProcessing && (
-            <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-2 h-full py-1 pr-1">
-              {canProcess && (
-                <button
-                  onClick={() => startProcessing(false)}
-                  className="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold h-full px-5 rounded-full transition-all flex items-center justify-center gap-2 shadow-sm text-sm"
-                >
-                  <Play size={16} className="fill-current" /> Process
-                </button>
-              )}
-              {canRetry && (
-                <button
-                  onClick={() => startProcessing(true)}
-                  className="bg-orange-500 hover:bg-orange-400 text-white font-semibold h-full px-5 rounded-full transition-all flex items-center justify-center gap-2 shadow-sm text-sm"
-                >
-                  <Play size={16} className="fill-current" /> Retry
-                </button>
-              )}
-              <button
-                onClick={handleClear}
-                className="h-full px-3 bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-full transition-colors flex items-center justify-center"
-                title="Clear All Files"
+          <AnimatePresence mode="wait">
+            {hasFiles && !isProcessing && (
+              <motion.div 
+                key="actions"
+                initial={{ opacity: 0, width: 0, paddingLeft: 0, paddingRight: 0 }}
+                animate={{ opacity: 1, width: 'auto', paddingLeft: 8, paddingRight: 4 }}
+                exit={{ opacity: 0, width: 0, paddingLeft: 0, paddingRight: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 h-full py-1 overflow-hidden"
               >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          )}
+                {canProcess && (
+                  <button
+                    onClick={() => startProcessing(false)}
+                    className="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold h-full px-5 rounded-full transition-all flex items-center justify-center gap-2 shadow-sm text-sm"
+                  >
+                    <Play size={16} className="fill-current" /> Process
+                  </button>
+                )}
+                {canRetry && (
+                  <button
+                    onClick={() => startProcessing(true)}
+                    className="bg-orange-500 hover:bg-orange-400 text-white font-semibold h-full px-5 rounded-full transition-all flex items-center justify-center gap-2 shadow-sm text-sm"
+                  >
+                    <Play size={16} className="fill-current" /> Retry
+                  </button>
+                )}
+                <button
+                  onClick={handleClear}
+                  className="h-full px-3 bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-full transition-colors flex items-center justify-center"
+                  title="Clear All Files"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </motion.div>
+            )}
 
-          {isProcessing && (
-            <div className="flex-1 flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-3 pr-4 h-full min-w-[200px]">
-              <div className="flex-1">
-                <div className="flex justify-between text-[10px] font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 uppercase">
-                  <span className="flex items-center gap-1.5"><Loader2 size={10} className="animate-spin text-cyan-500" /> Processing</span>
-                  <span>{progressPercent}%</span>
+            {isProcessing && (
+              <motion.div 
+                key="processing"
+                initial={{ opacity: 0, width: 0, paddingLeft: 0, paddingRight: 0 }}
+                animate={{ opacity: 1, width: 'auto', paddingLeft: 12, paddingRight: 16 }}
+                exit={{ opacity: 0, width: 0, paddingLeft: 0, paddingRight: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex-1 flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 h-full min-w-[200px] overflow-hidden"
+              >
+                <div className="flex-1">
+                  <div className="flex justify-between text-[10px] font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-1.5 uppercase">
+                    <span className="flex items-center gap-1.5"><Loader2 size={10} className="animate-spin text-cyan-500" /> Processing</span>
+                    <span>{progressPercent}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 shadow-inner">
+                    <div className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full transition-all duration-300 shadow-sm" style={{ width: `${progressPercent}%` }}></div>
+                  </div>
                 </div>
-                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 shadow-inner">
-                  <div className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full transition-all duration-300 shadow-sm" style={{ width: `${progressPercent}%` }}></div>
-                </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
     </div>
