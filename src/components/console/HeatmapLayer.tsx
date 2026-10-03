@@ -24,7 +24,7 @@ export default function HeatmapLayer({ points, theme = 'light_all' }: { points: 
 
         // Dynamically scale max intensity based on total points
         // Sparse points (e.g. 1-2) get a lower max so they pop, dense points cap at 8.0
-        const dynamicMax = Math.max(1.2, Math.min(8.0, points.length / 3));
+        const dynamicMax = Math.max(1.8, Math.min(8.0, points.length / 3));
 
         heatLayer = L.heatLayer(points, {
           radius: 20,

@@ -124,7 +124,7 @@ export default function UploadWidget({
         </AnimatePresence>
 
         {/* Collapsed/Control Bar */}
-        <div className="flex items-center justify-between p-2 gap-2 h-[64px] relative z-10 bg-white/50 dark:bg-slate-900/50">
+        <div className="flex items-center justify-between p-2 gap-2 h-[64px] relative z-10 bg-transparent">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-3 pl-2 pr-4 h-full rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-200 font-semibold text-sm flex-1"

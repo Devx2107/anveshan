@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Image as ImageIcon, Loader2, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 
 import { useAuth } from '@/components/AuthProvider';
@@ -213,17 +213,22 @@ export default function Dashboard() {
 
 
       {/* Main Content Area */}
-      <motion.main 
+      <motion.main
         initial={false}
-        animate={{ 
+        animate={{
           paddingLeft: isQueueDrawerOpen ? 320 + 24 : 24,
           paddingRight: 24
         }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="flex-1 w-full flex flex-col pt-0 pb-20 md:pb-32 relative z-10"
+        className="flex-1 w-full flex flex-col pt-0 pb-20 md:pb-32"
       >
-        <div className="max-w-[1200px] w-full mx-auto flex flex-col">
-          <TopControls 
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="max-w-[1200px] w-full mx-auto flex flex-col"
+        >
+          <TopControls
             viewMode={viewMode}
             setViewMode={setViewMode}
             globalReport={globalReport}
@@ -232,78 +237,93 @@ export default function Dashboard() {
             showTabs={queue.length > 0}
           />
 
-          {queue.length === 0 && (
-            <div className="h-full w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/20 text-slate-500 transition-colors min-h-[500px]">
-              <Layers className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
-              <p className="text-lg font-medium text-slate-700 dark:text-slate-300">Upload Data to Begin</p>
-              <p className="text-sm mt-2 max-w-sm text-center">Drag and drop a folder of images, multiple selected images, or a ZIP archive into the upload area.</p>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {queue.length === 0 && (
+              <motion.div
+                key="empty-queue"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                className="h-full w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/20 text-slate-500 transition-colors min-h-[500px]"
+              >
+                <Layers className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
+                <p className="text-lg font-medium text-slate-700 dark:text-slate-300">Upload Data to Begin</p>
+                <p className="text-sm mt-2 max-w-sm text-center">Drag and drop a folder of images, multiple selected images, or a ZIP archive into the upload area.</p>
+              </motion.div>
+            )}
 
-          {queue.length > 0 && viewMode === 'single' && activeItem && (
-            <div className="space-y-6">
-              {/* Viewer */}
-              <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-sm dark:shadow-none transition-colors">
-                <div className="flex items-center justify-between mb-4 h-8">
-                  <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 truncate pr-4">
-                    <ImageIcon size={20} className="text-blue-600 dark:text-blue-400 shrink-0" />
-                    <span className="truncate">{activeItem.file.name}</span>
-                  </h2>
+            {queue.length > 0 && viewMode === 'single' && activeItem && (
+              <motion.div
+                key="single-view"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+                className="space-y-6"
+              >
+                {/* Viewer */}
+                <div className="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-sm dark:shadow-none transition-colors">
+                  <div className="flex items-center justify-between mb-4 h-8">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 truncate pr-4">
+                      <ImageIcon size={20} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                      <span className="truncate">{activeItem.file.name}</span>
+                    </h2>
 
-                  {/* Pagination Controls */}
-                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg shrink-0 border border-slate-200 dark:border-slate-700">
-                    <button
-                      disabled={activeViewIndex === 0}
-                      onClick={() => setActiveViewIndex(prev => prev - 1)}
-                      className="p-1 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed"
-                      title="Previous Image"
-                    ><ChevronLeft size={16} /></button>
-                    <span className="text-xs font-medium px-2 min-w-[40px] text-center text-slate-700 dark:text-slate-300" title="Current Image">{activeViewIndex + 1} / {queue.length}</span>
-                    <button
-                      disabled={activeViewIndex === queue.length - 1}
-                      onClick={() => setActiveViewIndex(prev => prev + 1)}
-                      className="p-1 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed"
-                      title="Next Image"
-                    ><ChevronRight size={16} /></button>
+                    {/* Pagination Controls */}
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg shrink-0 border border-slate-200 dark:border-slate-700">
+                      <button
+                        disabled={activeViewIndex === 0}
+                        onClick={() => setActiveViewIndex(prev => prev - 1)}
+                        className="p-1 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed"
+                        title="Previous Image"
+                      ><ChevronLeft size={16} /></button>
+                      <span className="text-xs font-medium px-2 min-w-[40px] text-center text-slate-700 dark:text-slate-300" title="Current Image">{activeViewIndex + 1} / {queue.length}</span>
+                      <button
+                        disabled={activeViewIndex === queue.length - 1}
+                        onClick={() => setActiveViewIndex(prev => prev + 1)}
+                        className="p-1 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed"
+                        title="Next Image"
+                      ><ChevronRight size={16} /></button>
+                    </div>
                   </div>
+
+                  <SingleView
+                    activeItem={activeItem}
+                    mapTheme={mapTheme}
+                    cartoTileUrl={cartoTileUrl}
+                    leafletLib={leafletLib}
+                  />
                 </div>
+              </motion.div>
+            )}
 
-                <SingleView 
-                  activeItem={activeItem}
-                  mapTheme={mapTheme}
+            {queue.length > 0 && viewMode === 'grouped' && (
+              <motion.div
+                key="grouped-view"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
+              >
+                <GroupedAnalytics
+                  processedCount={processedCount}
+                  totalQueue={queue.length}
+                  globalReport={globalReport}
                   cartoTileUrl={cartoTileUrl}
-                  leafletLib={leafletLib}
+                  mapTheme={mapTheme}
                 />
-              </div>
-            </div>
-          )}
-
-          {queue.length > 0 && viewMode === 'grouped' && (
-            <GroupedAnalytics 
-              processedCount={processedCount}
-              totalQueue={queue.length}
-              globalReport={globalReport}
-              cartoTileUrl={cartoTileUrl}
-              mapTheme={mapTheme}
-            />
-          )}
-        </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </motion.main>
 
       {/* Sticky Bottom Area for Upload Widget */}
-      <div className="sticky bottom-6 w-full h-[64px] z-50 pointer-events-none mt-auto flex justify-center">
+      <div className="sticky bottom-6 w-full h-[64px] z-30 pointer-events-none mt-auto flex justify-center">
         <div className="pointer-events-auto relative w-full flex justify-center">
           <div className="absolute bottom-0 flex justify-center">
-            <UploadWidget 
+            <UploadWidget
               queue={queue}
               isDragging={isDragging}
               handleFileChange={(e) => {
-                  handleFileChange(e);
-                  if (e.target.files && e.target.files.length > 0) setIsQueueDrawerOpen(true);
+                handleFileChange(e);
+                if (e.target.files && e.target.files.length > 0) setIsQueueDrawerOpen(true);
               }}
               handleClear={() => {
-                  handleClear();
-                  setIsQueueDrawerOpen(false);
+                handleClear();
+                setIsQueueDrawerOpen(false);
               }}
               processingStatus={processingStatus}
               pendingCount={pendingCount}

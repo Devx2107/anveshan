@@ -45,7 +45,7 @@ export default function QueueDrawer({
         initial={{ x: '-100%' }}
         animate={{ x: isOpen ? 0 : '-100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed top-[104px] left-0 h-[calc(100vh-104px)] w-[320px] bg-white dark:bg-slate-900 border-t border-r border-slate-200 dark:border-slate-800 shadow-2xl z-40 flex flex-col pt-4 pb-24"
+        className="fixed top-[104px] left-0 h-[calc(100vh-104px)] w-[320px] bg-white dark:bg-slate-900 border-t border-r border-slate-200 dark:border-slate-800 shadow-2xl z-40 flex flex-col pt-4 pb-4"
       >
         {/* Attached Toggle Button */}
         {queue.length > 0 && (

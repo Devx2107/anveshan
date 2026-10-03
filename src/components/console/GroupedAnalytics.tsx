@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Map as MapIcon, BarChart, Navigation } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Map as MapIcon, BarChart, Navigation, Maximize, X } from 'lucide-react';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -21,6 +22,28 @@ interface GroupedAnalyticsProps {
 
 export default function GroupedAnalytics({ processedCount, totalQueue, globalReport, cartoTileUrl, mapTheme }: GroupedAnalyticsProps) {
   const [map, setMap] = useState<LeafletMap | null>(null);
+  const [isMapMaximized, setIsMapMaximized] = useState(false);
+
+  useEffect(() => {
+    if (map) {
+      setTimeout(() => {
+        map.invalidateSize();
+        // Force leaflet.heat and tiles to redraw since invalidateSize doesn't always trigger moveend
+        map.fire('moveend');
+      }, 100);
+    }
+  }, [isMapMaximized, map]);
+
+  useEffect(() => {
+    if (isMapMaximized) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMapMaximized]);
 
   useEffect(() => {
     if (!map) return;
@@ -63,31 +86,61 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Global Map Backdrop */}
+        <AnimatePresence>
+          {isMapMaximized && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[41]"
+              onClick={() => setIsMapMaximized(false)}
+            />
+          )}
+        </AnimatePresence>
+
         {/* Global Map */}
-        <div className="lg:col-span-2 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm">
+        <motion.div 
+          layout
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className={
+            isMapMaximized
+              ? "fixed top-[104px] bottom-4 left-4 right-4 md:left-10 md:right-10 md:bottom-10 z-[42] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col shadow-2xl"
+              : "lg:col-span-2 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm"
+          }
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-slate-100">
               <MapIcon size={20} className="text-emerald-500" /> Global Heatmap
               <span className="text-xs font-normal text-slate-400 ml-2 hidden sm:inline">(Ctrl + Scroll to zoom)</span>
             </h2>
-            {globalReport && globalReport.length > 0 && (
+            <div className="flex items-center gap-2">
+              {globalReport && globalReport.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (map && globalReport.length > 0) {
+                      const lats = globalReport.map((r) => r.latitude);
+                      const lons = globalReport.map((r) => r.longitude);
+                      map.fitBounds([
+                        [Math.min(...lats), Math.min(...lons)],
+                        [Math.max(...lats), Math.max(...lons)]
+                      ], { padding: [50, 50], maxZoom: 4 });
+                    }
+                  }}
+                  className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                  title="Recenter Map"
+                >
+                  <Navigation size={16} className="-ml-[1px] mt-[1px]" />
+                </button>
+              )}
               <button
-                onClick={() => {
-                  if (map && globalReport.length > 0) {
-                    const lats = globalReport.map((r) => r.latitude);
-                    const lons = globalReport.map((r) => r.longitude);
-                    map.fitBounds([
-                      [Math.min(...lats), Math.min(...lons)],
-                      [Math.max(...lats), Math.max(...lons)]
-                    ], { padding: [50, 50], maxZoom: 4 });
-                  }
-                }}
-                className="p-1.5 flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
-                title="Recenter Map"
+                onClick={() => setIsMapMaximized(!isMapMaximized)}
+                className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                title={isMapMaximized ? "Minimize Map" : "Maximize Map"}
               >
-                <Navigation size={16} className="-ml-[1px] mt-[1px]" />
+                {isMapMaximized ? <X size={16} /> : <Maximize size={16} />}
               </button>
-            )}
+            </div>
           </div>
           <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 z-0 relative bg-slate-100 dark:bg-slate-900">
             {globalReport.length > 0 ? (
@@ -103,13 +156,13 @@ export default function GroupedAnalytics({ processedCount, totalQueue, globalRep
                 className="z-0"
               >
                 <TileLayer key={mapTheme} url={cartoTileUrl} attribution='&copy; OpenStreetMap' />
-                <HeatmapLayer theme={mapTheme} points={globalReport.map((entry) => [entry.latitude, entry.longitude, entry.confidence / 100])} />
+                <HeatmapLayer key={`${mapTheme}-${isMapMaximized}`} theme={mapTheme} points={globalReport.map((entry) => [entry.latitude, entry.longitude, entry.confidence / 100])} />
               </MapContainer>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm">No geographic data.</div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Global Ledger */}
         <div className="lg:col-span-1 bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-[500px] flex flex-col shadow-sm backdrop-blur-sm">
