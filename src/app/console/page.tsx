@@ -16,6 +16,7 @@ import QueueDrawer from '@/components/console/QueueDrawer';
 import TopControls from '@/components/console/TopControls';
 
 import { useFileProcessing } from '@/hooks/useFileProcessing';
+import { ReportEntry } from '@/types';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -109,11 +110,10 @@ export default function Dashboard() {
 
 
   // Global Aggregations
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const globalReport: any[] = [];
+  const globalReport: (ReportEntry & { source_file: string })[] = [];
   queue.forEach(item => {
     if (item.status === 'done' && item.data?.report) {
-      item.data.report.forEach((entry: Record<string, unknown>) => {
+      item.data.report.forEach((entry: ReportEntry) => {
         globalReport.push({ ...entry, source_file: item.file.name });
       });
     }
@@ -132,8 +132,7 @@ export default function Dashboard() {
   const downloadCsv = () => {
     if (globalReport.length === 0) return;
     const headers = Object.keys(globalReport[0]).join(',');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rows = globalReport.map((r: any) =>
+    const rows = globalReport.map((r) =>
       Object.values(r).map(v => {
         if (typeof v === 'object' && v !== null) {
           return `"${JSON.stringify(v).replace(/"/g, '""')}"`;

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Loader2, AlertTriangle, MapIcon, BarChart, CheckCircle, Navigation, Image as ImageIcon } from 'lucide-react';
-import { QueueItem } from '@/types';
+import { QueueItem, ReportEntry } from '@/types';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -61,8 +61,7 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
         ctx.drawImage(img, 0, 0);
 
         if (activeData.report) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          activeData.report.forEach((d: any) => {
+          activeData.report.forEach((d: ReportEntry) => {
             const bbox = d.bbox || d.bbox_px;
             if (!bbox) return; // safety check
             const [x, y, w, h] = bbox;
@@ -181,8 +180,7 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
                 <MapContainer ref={setMap} key={`map-${activeItem.id}`} center={[activeItem.data.report[0].latitude, activeItem.data.report[0].longitude]} zoom={4} style={{ height: '100%', minHeight: '300px', width: '100%', backgroundColor: 'transparent' }} className="z-0">
                   <TileLayer key={mapTheme} url={cartoTileUrl} attribution='&copy; OpenStreetMap' />
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {activeItem.data.report.map((entry: any) => {
+                  {activeItem.data.report.map((entry: ReportEntry) => {
                     const iconHtml = entry.flagged_for_review
                       ? '<div style="background-color:#f97316; width:16px; height:16px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);"></div>'
                       : '<div style="background-color:#10b981; width:16px; height:16px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);"></div>';
@@ -206,8 +204,7 @@ export default function SingleView({ activeItem, mapTheme, cartoTileUrl, leaflet
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {activeItem.data.report && activeItem.data.report.length > 0 ? (
                 <div className="space-y-2">
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {activeItem.data.report.map((entry: any) => (
+                  {activeItem.data.report.map((entry: ReportEntry) => (
                     <div key={entry.detection_id} className={`flex justify-between items-center px-4 py-2.5 rounded-lg border ${entry.flagged_for_review ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-200 dark:border-orange-500/20' : 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-500/20'}`}>
                       <div className="flex flex-col justify-center gap-1">
                         <p className="font-semibold text-sm text-slate-900 dark:text-slate-200 capitalize leading-none">{entry.image_class.replace(/_/g, ' ')}</p>

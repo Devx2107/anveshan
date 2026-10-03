@@ -10,11 +10,23 @@ export interface Detection {
   cluster_id?: number | string;
 }
 
+export interface ReportEntry {
+  detection_id: string | number;
+  image_class: string;
+  confidence: number;
+  latitude: number;
+  longitude: number;
+  bbox?: [number, number, number, number];
+  bbox_px?: [number, number, number, number];
+  flagged_for_review: boolean;
+  [key: string]: unknown;
+}
+
 export interface ReportData {
   message?: string;
   cleaned_image?: string; // base64 string
   detections?: Detection[];
-  report?: unknown[];
+  report?: ReportEntry[];
   metadata?: {
     total_detections: number;
     flagged_detections: number;
