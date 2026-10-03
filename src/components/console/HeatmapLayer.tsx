@@ -18,7 +18,7 @@ export default function HeatmapLayer({ points, theme = 'light_all' }: { points: 
         if (!points || points.length === 0) return;
 
         const isDark = theme === 'dark_all';
-        const gradient = isDark
+        const gradient: { [key: number]: string } = isDark
           ? { 0.2: '#312e81', 0.4: '#3b82f6', 0.6: '#10b981', 0.8: '#f59e0b', 1.0: '#ef4444' } // indigo -> blue -> emerald -> amber -> red
           : { 0.1: 'blue', 0.3: 'cyan', 0.5: 'lime', 0.7: 'yellow', 1.0: 'red' };
 
