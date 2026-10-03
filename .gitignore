@@ -33,6 +33,7 @@ __pycache__/
 /yolov8n.pt
 /.tools/
 .ipynb_checkpoints/
+scripts/
 
 # Editor and operating system files
 .vscode/
