@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
-import { LogIn, LogOut, Settings, Sun, Moon, Check, X, User } from 'lucide-react';
+import { LogIn, LogOut, Settings, Sun, Moon, Check, X, User, Menu } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -17,7 +17,9 @@ export default function Navbar() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Mounted state for next-themes
   const [mounted, setMounted] = useState(false);
@@ -29,6 +31,7 @@ export default function Navbar() {
   // Force scroll to top on route change to fix intermittent scrolling bugs with Framer Motion
   useEffect(() => {
     window.scrollTo(0, 0);
+    setIsMobileMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -36,6 +39,9 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
         setShowLogoutConfirm(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -60,9 +66,17 @@ export default function Navbar() {
   return (
     <nav className="sticky top-4 w-[calc(100%-2rem)] md:w-[calc(100%-4rem)] max-w-7xl mx-auto bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 rounded-full z-50 transition-colors shadow-lg mt-4 mb-6">
       <div className="pl-5 pr-3.5 lg:pl-6 lg:pr-3.5">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 relative" ref={mobileMenuRef}>
           {/* Brand */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
+            <button
+              className="md:hidden p-1.5 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle Menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+
             <Link href="/" onClick={handleHomeClick} className="flex items-center">
               <span className="font-yatra text-4xl tracking-wide text-slate-800 dark:text-slate-100 translate-y-1">
                 अन्वेषण
@@ -70,10 +84,10 @@ export default function Navbar() {
             </Link>
 
             {/* Divider */}
-            <div className="h-6 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block rounded-full"></div>
+            <div className="h-6 w-px bg-slate-300 dark:bg-slate-700 hidden md:block rounded-full"></div>
 
             {/* Navigation links */}
-            <div className="flex items-center gap-6 text-sm font-medium">
+            <div className="hidden md:flex items-center gap-6 text-sm font-medium">
               <Link
                 href="/"
                 onClick={handleHomeClick}
@@ -232,6 +246,43 @@ export default function Navbar() {
             )}
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="md:hidden absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-white dark:bg-slate-900 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col z-50 p-2 gap-1"
+            >
+              <Link
+                href="/"
+                onClick={(e) => {
+                  handleHomeClick(e);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`transition-all duration-200 px-4 py-3 rounded-xl text-sm font-medium ${pathname === '/'
+                  ? 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                  }`}
+              >
+                Home
+              </Link>
+              <Link
+                href="/console"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`transition-all duration-200 px-4 py-3 rounded-xl text-sm font-medium ${pathname === '/console'
+                  ? 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                  }`}
+              >
+                Console
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );
